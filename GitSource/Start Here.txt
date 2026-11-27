@@ -1,0 +1,28 @@
+NEONLOOP
+
+Install 2064: Read Only Memories on Steam and close the game.
+Run NeonLoop-Setup.exe. When setup finishes, choose Play Now.
+
+If NeonLoop is already installed, setup offers Reinstall or Uninstall.
+You can also uninstall from Windows Settings or Setup options in the
+launcher. Setup asks before removing shortcuts and firewall rules,
+downloaded files and settings, and the installed mod. Your Steam game and
+saves stay.
+
+Press F10 in the game for graphics, music, and gameplay options. Press
+Alt+Enter to switch between a window and borderless fullscreen.
+
+Easy Install preselects Dark Synthwave. Select the soundtracks you want and
+setup prepares their replacement cutscenes. The offline installer includes
+the files for CPU processing. Review your gameplay options before Play Now.
+You can switch soundtracks in F10 > Music, including the original soundtrack.
+
+To remix the cutscenes after adding a pack, open Setup options > Customize
+installation and select the pack under Replacement cutscenes. This takes
+longer. Setup shows each missing tool and lets you download it, choose your
+own copy, or skip cutscene setup to keep the original videos.
+
+Steam's Play button still opens the original game. If Steam is not found
+automatically, select Find game and choose the game's folder.
+
+Soundtrack Credits.md and DSP Source.md are beside this file.
