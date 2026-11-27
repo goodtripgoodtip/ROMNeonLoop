@@ -1,0 +1,444 @@
+{
+  "version": 1,
+  "current": {
+    "AdaptiveSharp": {
+      "on": true,
+      "strength": 0.3799999952316284
+    },
+    "BlackLift": {
+      "on": false,
+      "strength": 0.38999998569488525
+    },
+    "Bleach": {
+      "on": false,
+      "strength": 0.4099999964237213
+    },
+    "Bokeh": {
+      "on": true,
+      "strength": 0.09000000357627869
+    },
+    "Chromatic": {
+      "on": false,
+      "strength": 0.4399999976158142
+    },
+    "Contrast": {
+      "on": false,
+      "strength": 0.3100000023841858
+    },
+    "CrossProcess": {
+      "on": false,
+      "strength": 0.2800000011920929
+    },
+    "Deband": {
+      "on": true,
+      "strength": 0.6800000071525574
+    },
+    "Denoise": {
+      "on": true,
+      "strength": 1.0
+    },
+    "Diffusion": {
+      "on": false,
+      "strength": 0.09000000357627869
+    },
+    "Dither": {
+      "on": false,
+      "strength": 0.3199999928474426
+    },
+    "EdgeSoften": {
+      "on": true,
+      "strength": 0.46000000834465027
+    },
+    "EdgeSoftness": {
+      "on": true,
+      "strength": 0.27000001072883606
+    },
+    "Emboss": {
+      "on": false,
+      "strength": 0.2199999988079071
+    },
+    "Exposure": {
+      "on": false,
+      "strength": 0.7599999904632568
+    },
+    "FXAA": {
+      "on": true,
+      "strength": 1.0
+    },
+    "Fade": {
+      "on": false,
+      "strength": 0.30000001192092896
+    },
+    "Filmic": {
+      "on": false,
+      "strength": 0.33000001311302185
+    },
+    "Gamma": {
+      "on": false,
+      "strength": 1.0
+    },
+    "Gradient": {
+      "on": true,
+      "strength": 0.4300000071525574
+    },
+    "Grain": {
+      "on": true,
+      "strength": 0.15000000596046448
+    },
+    "Halation": {
+      "on": true,
+      "strength": 0.1599999964237213
+    },
+    "HaloReduce": {
+      "on": true,
+      "strength": 0.3199999928474426
+    },
+    "HighPass": {
+      "on": true,
+      "strength": 0.4699999988079071
+    },
+    "HighlightRoll": {
+      "on": false,
+      "strength": 0.0
+    },
+    "HueShift": {
+      "on": false,
+      "strength": 0.46000000834465027
+    },
+    "Interlace": {
+      "on": true,
+      "strength": 0.41999998688697815
+    },
+    "LensDirt": {
+      "on": true,
+      "strength": 0.05000000074505806
+    },
+    "LocalContrast": {
+      "on": true,
+      "strength": 0.9900000095367432
+    },
+    "Monochrome": {
+      "on": false,
+      "strength": 1.0
+    },
+    "NeonGlow": {
+      "on": false,
+      "strength": 0.03999999910593033
+    },
+    "Outline": {
+      "on": true,
+      "strength": 0.07000000029802322
+    },
+    "Paper": {
+      "on": true,
+      "strength": 0.18000000715255737
+    },
+    "Phosphor": {
+      "on": false,
+      "strength": 1.0
+    },
+    "PixelEdge": {
+      "on": true,
+      "strength": 0.4000000059604645
+    },
+    "PixelGrid": {
+      "on": false,
+      "strength": 0.36000001430511475
+    },
+    "Posterize": {
+      "on": false,
+      "strength": 0.14000000059604645
+    },
+    "RadialBlur": {
+      "on": true,
+      "strength": 0.07999999821186066
+    },
+    "SMAA": {
+      "on": true,
+      "strength": 0.6299999952316284
+    },
+    "Saturation": {
+      "on": true,
+      "strength": 0.3199999928474426
+    },
+    "Scanlines": {
+      "on": false,
+      "strength": 0.10000000149011612
+    },
+    "Sepia": {
+      "on": false,
+      "strength": 0.699999988079071
+    },
+    "ShadowDetail": {
+      "on": false,
+      "strength": 0.10999999940395355
+    },
+    "SoftBloom": {
+      "on": false,
+      "strength": 0.10000000149011612
+    },
+    "SplitTone": {
+      "on": true,
+      "strength": 1.0
+    },
+    "Starburst": {
+      "on": false,
+      "strength": 0.30000001192092896
+    },
+    "Streak": {
+      "on": false,
+      "strength": 0.15000000596046448
+    },
+    "Temperature": {
+      "on": true,
+      "strength": 0.27000001072883606
+    },
+    "TiltShift": {
+      "on": true,
+      "strength": 0.11999999731779099
+    },
+    "Tint": {
+      "on": false,
+      "strength": 0.3499999940395355
+    },
+    "Unsharp": {
+      "on": true,
+      "strength": 0.27000001072883606
+    },
+    "Vibrance": {
+      "on": true,
+      "strength": 0.33000001311302185
+    },
+    "Vignette": {
+      "on": false,
+      "strength": 0.14000000059604645
+    },
+    "Watercolor": {
+      "on": false,
+      "strength": 0.33000001311302185
+    }
+  },
+  "groups": [
+    {
+      "name": "Toiqy",
+      "stack": {
+        "AdaptiveSharp": {
+          "on": true,
+          "strength": 0.3799999952316284
+        },
+        "BlackLift": {
+          "on": false,
+          "strength": 0.38999998569488525
+        },
+        "Bleach": {
+          "on": false,
+          "strength": 0.4099999964237213
+        },
+        "Bokeh": {
+          "on": true,
+          "strength": 0.09000000357627869
+        },
+        "Chromatic": {
+          "on": false,
+          "strength": 0.4399999976158142
+        },
+        "Contrast": {
+          "on": false,
+          "strength": 0.3100000023841858
+        },
+        "CrossProcess": {
+          "on": false,
+          "strength": 0.2800000011920929
+        },
+        "Deband": {
+          "on": true,
+          "strength": 0.6800000071525574
+        },
+        "Denoise": {
+          "on": true,
+          "strength": 1.0
+        },
+        "Diffusion": {
+          "on": false,
+          "strength": 0.09000000357627869
+        },
+        "Dither": {
+          "on": false,
+          "strength": 0.3199999928474426
+        },
+        "EdgeSoften": {
+          "on": true,
+          "strength": 0.46000000834465027
+        },
+        "EdgeSoftness": {
+          "on": true,
+          "strength": 0.27000001072883606
+        },
+        "Emboss": {
+          "on": false,
+          "strength": 0.2199999988079071
+        },
+        "Exposure": {
+          "on": false,
+          "strength": 0.7599999904632568
+        },
+        "FXAA": {
+          "on": true,
+          "strength": 1.0
+        },
+        "Fade": {
+          "on": false,
+          "strength": 0.30000001192092896
+        },
+        "Filmic": {
+          "on": false,
+          "strength": 0.33000001311302185
+        },
+        "Gamma": {
+          "on": false,
+          "strength": 1.0
+        },
+        "Gradient": {
+          "on": true,
+          "strength": 0.4300000071525574
+        },
+        "Grain": {
+          "on": true,
+          "strength": 0.15000000596046448
+        },
+        "Halation": {
+          "on": true,
+          "strength": 0.1599999964237213
+        },
+        "HaloReduce": {
+          "on": true,
+          "strength": 0.3199999928474426
+        },
+        "HighPass": {
+          "on": true,
+          "strength": 0.4699999988079071
+        },
+        "HighlightRoll": {
+          "on": false,
+          "strength": 0.0
+        },
+        "HueShift": {
+          "on": false,
+          "strength": 0.46000000834465027
+        },
+        "Interlace": {
+          "on": true,
+          "strength": 0.41999998688697815
+        },
+        "LensDirt": {
+          "on": true,
+          "strength": 0.05000000074505806
+        },
+        "LocalContrast": {
+          "on": true,
+          "strength": 0.9900000095367432
+        },
+        "Monochrome": {
+          "on": false,
+          "strength": 1.0
+        },
+        "NeonGlow": {
+          "on": false,
+          "strength": 0.03999999910593033
+        },
+        "Outline": {
+          "on": true,
+          "strength": 0.07000000029802322
+        },
+        "Paper": {
+          "on": true,
+          "strength": 0.18000000715255737
+        },
+        "Phosphor": {
+          "on": false,
+          "strength": 1.0
+        },
+        "PixelEdge": {
+          "on": true,
+          "strength": 0.4000000059604645
+        },
+        "PixelGrid": {
+          "on": false,
+          "strength": 0.36000001430511475
+        },
+        "Posterize": {
+          "on": false,
+          "strength": 0.14000000059604645
+        },
+        "RadialBlur": {
+          "on": true,
+          "strength": 0.07999999821186066
+        },
+        "SMAA": {
+          "on": true,
+          "strength": 0.6299999952316284
+        },
+        "Saturation": {
+          "on": true,
+          "strength": 0.3199999928474426
+        },
+        "Scanlines": {
+          "on": false,
+          "strength": 0.10000000149011612
+        },
+        "Sepia": {
+          "on": false,
+          "strength": 0.699999988079071
+        },
+        "ShadowDetail": {
+          "on": false,
+          "strength": 0.10999999940395355
+        },
+        "SoftBloom": {
+          "on": false,
+          "strength": 0.10000000149011612
+        },
+        "SplitTone": {
+          "on": true,
+          "strength": 1.0
+        },
+        "Starburst": {
+          "on": false,
+          "strength": 0.30000001192092896
+        },
+        "Streak": {
+          "on": false,
+          "strength": 0.15000000596046448
+        },
+        "Temperature": {
+          "on": true,
+          "strength": 0.27000001072883606
+        },
+        "TiltShift": {
+          "on": true,
+          "strength": 0.11999999731779099
+        },
+        "Tint": {
+          "on": false,
+          "strength": 0.3499999940395355
+        },
+        "Unsharp": {
+          "on": true,
+          "strength": 0.27000001072883606
+        },
+        "Vibrance": {
+          "on": true,
+          "strength": 0.33000001311302185
+        },
+        "Vignette": {
+          "on": false,
+          "strength": 0.14000000059604645
+        },
+        "Watercolor": {
+          "on": false,
+          "strength": 0.33000001311302185
+        }
+      }
+    }
+  ]
+}
