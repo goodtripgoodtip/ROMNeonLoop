@@ -1,0 +1,21 @@
+video	cue	start_cents	peak_cents	accent_at	effect_scale	context
+LIPSBoot.webm	titlescreen	26	42	0.66	0.94	Terminal boot and reveal
+ROMVideo_1.webm	welcometoneosf	27	53	0.61	1.1	Opening narrative and city reveal
+ROMVideo_2.webm	strangedevelopments	29	55	0.53	0.91	Glitch sequence over speech
+ROMVideo_3.webm	scrubbing for clues	24	40	0.7	0.77	Jess profile and interview montage
+ROMVideo_4.webm	emotionaltheme	20	34	0.52	0.72	Dialogue and technical disclosure
+ROMVideo_5.webm	tension	25	47	0.62	0.88	Character montage
+ROMVideo_6.webm	turingtheme	23	44	0.69	0.86	City and gameplay montage
+ROMVideo_7.webm	pausemusic	21	28	0	0.75	Brief logo transition
+ROMVideo_8.webm	distantscenery	19	34	0.56	0.75	Turing room dialogue
+ROMVideo_9.webm	actionstreets	24	39	0.63	0.73	Street encounter with dialogue
+ROMVideo_10.webm	parallaxserverroom	22	41	0.57	0.71	Dialogue and station montage
+ROMVideo_11.webm	dekkermemory	21	39	0.61	0.9	Street exterior beat
+ROMVideo_12.webm	thefinalrun	23	42	0.72	0.76	Field conversation and mounting stakes
+ROMVideo_13.webm	epiloguedark	19	34	0.6	0.73	Extended dialogue and retrospective
+ROMVideo_14.webm	epiloguelight	18	30	0.54	0.66	Lyric-led closing montage
+ROMVideo_15.webm	tellmeyourstory	22	40	0.61	0.84	Japanese trailer and city reveal
+ROMVideo_16.webm	2064	28	53	0.61	1.05	Glitch-heavy system sequence
+ROMVideo_17.webm	jesstheme	20	35	0.67	0.84	Coffee and title card montage
+ROMVideo_18.webm	crowtheme	22	40	0.68	0.79	Dialogue-led trailer montage
+ROMVideo_19.webm	creditsmusic	29	55	0.62	1.02	Arcade teaser and end cards

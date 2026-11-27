@@ -1,0 +1,12 @@
+id	dialog	anchor	occurrence	action	cue	pitch_cents	space	seconds	volume	intent	anchor_matches
+lexi_reveal	augmentedeyeoffice/lexi_ch3	name="24ZinnFall_6_18_Lexi"	1	pulse	lexitheme	-19	0.62	4.6	0.2	Open the space when Lexi resumes speaking after the deliberate break	1
+turing_confession	hospital/fairlight_ch4	name="32MoneyFairlight_2_2_Turing"	1	move-earlier	turing'ssadness	-16	0.55	5.2	0.4	Bring the sad motif in on Turing's second line and keep the opening silence	1
+fairlight_counterpoint	hospital/fairlight_ch4	name="32MoneyFairlight_3_1_Fairlight"	1	pulse	augmentedeye	15	0.46	4.2	0.25	Let the office motif brighten as Fairlight takes the conversation	1
+jess_confession	stardust/jess_ch2	name="17JessStory_10A_3_Jess"	1	move-earlier	jessstory	-13	0.42	4.5	0.5	Start the quieter score where the club crowd drops away	1
+jess_reflection	stardust/jess_ch2	name="17JessStory_10A_12_Jess"	1	pulse	jessstory	13	0.53	5.2	0.3	Open the reverb on the final part of the recollection	1
+dekker_recruitment	hospitalentrance/dekker_ch5	name="44RecruitDekker_8_3_Dekker"	1	enter	dekkermemory	-17	0.49	4.9	0.19	Introduce Dekker's motif under the recruitment exchange and retain the ending stop	1
+parallax_door	parallaxremotereception/receptionist_ch5	<playAnim target=door name=open>	3	move-later	parallaxaction	24	0.72	3.5	0.3	Land the action cue on the door opening	4
+parallax_reaction	parallaxremotereception/receptionist_ch5	name="40BReception_5_10_Turing"	1	pulse	parallaxaction	-15	0.42	3.5	0.3	Ease the attack under Turing's reaction	3
+chase_north	chasemap/talk	<set $chaseTut2Choice=N>	1	pulse	catchmefirst	20	0.59	3.1	0.23	Lift the chase pulse on the north choice without restarting it	1
+chase_east	chasemap/talk	<set $chaseTut2Choice=E>	1	pulse	catchmefirst	-18	0.65	3.4	0.23	Darken the chase pulse on the east choice without restarting it	1
+chopshop_exit	chopshop/zapper	name="Leavesolosteps"	1	pulse	4moolah	-16	0.55	3.4	0.4	Let the new club cue widen after the record scratch and departing steps	1

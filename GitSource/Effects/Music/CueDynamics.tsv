@@ -1,0 +1,80 @@
+cue	space	family	start_cents	motion_cents	period_seconds	wet	room	echo	cutoff_hz	width
+2064	stage		31	20	96	0.82	0.36	0.13	16900	1.16
+4moolah	club		31	21	59	0.82	0.32	0.18	18400	1.26
+actionstreets	chase		39	27	96	0.87	0.26	0.15	17900	1.18
+augmentedeye	room		19	13	43	0.68	0.24	0.07	13400	1.08
+blueremastered	club		31	21	57	0.82	0.32	0.18	18400	1.26
+catchmefirst	chase		39	27	89	0.87	0.26	0.15	17900	1.18
+chargeshot	arcade		35	25	50	0.83	0.2	0.11	18400	1.13
+chopshop	club		31	21	55	0.82	0.32	0.18	18400	1.26
+creditsmusic	credit		25	18	96	0.75	0.38	0.11	16900	1.15
+crowtheme	pressure		38	27	92	0.83	0.38	0.19	11700	1.12
+danger	pressure		38	27	59	0.83	0.38	0.19	11700	1.12
+dekkerchase1	chase	dekker	39	26	10.495	0.87	0.26	0.15	17900	1.18
+dekkerchase2	chase	dekker	39	26	10.495	0.87	0.26	0.15	17900	1.18
+dekkerchase3	chase	dekker	39	26	10.495	0.87	0.26	0.15	17900	1.18
+dekkermemory	memory		23	20	25	0.74	0.43	0.12	13600	1.16
+distantscenery	street		27	18	96	0.76	0.28	0.13	14200	1.13
+emotionaltheme	warm		18	12	69	0.62	0.25	0.05	15500	1.08
+epiloguedark	memory		23	20	48	0.74	0.43	0.12	13600	1.16
+epiloguelight	warm		18	12	48	0.62	0.25	0.05	15500	1.08
+extras_leadthewayintotheheart	stage		31	20	88	0.82	0.36	0.13	16900	1.16
+extras_neosfmedical	room		19	13	96	0.68	0.24	0.07	13400	1.08
+extras_neosfstrut	club		31	21	96	0.82	0.32	0.18	18400	1.26
+extras_player'schoice	club		31	21	96	0.82	0.32	0.18	18400	1.26
+extras_sittingontreasureisland	gallery		26	19	96	0.76	0.34	0.095	14900	1.15
+extras_stepcareful	room		19	13	96	0.68	0.24	0.07	13400	1.08
+extras_wintermute.lip	vault		31	24	96	0.81	0.42	0.15	9300	1.12
+goldengateparkdayside	warm		18	12	53	0.62	0.25	0.05	15500	1.08
+hark the technical angels sing	gallery		26	19	37	0.76	0.34	0.095	14900	1.15
+hassybar	club		31	21	95	0.82	0.32	0.18	18400	1.26
+hassyphone	phone		19	12	32	0.72	0.14	0.055	4700	0.89
+hospital arpeggio	room	hospital	19	13	72.446	0.68	0.24	0.07	13400	1.08
+hospital no arpeggio	room	hospital	19	13	72.446	0.68	0.24	0.07	13400	1.08
+jessstory	close		13	11	41	0.58	0.18	0.035	17000	1.02
+jesstheme	warm		18	12	74	0.62	0.25	0.05	15500	1.08
+lexitheme	pressure		38	27	78	0.83	0.38	0.19	11700	1.12
+lovemebetter	credit		25	18	96	0.75	0.38	0.11	16900	1.15
+maintheme	stage	main	31	20	125.198	0.82	0.36	0.13	16900	1.16
+mainthemedynamic	stage	main	31	20	125.198	0.82	0.36	0.13	16900	1.16
+media	street		27	18	45	0.76	0.28	0.13	14200	1.13
+megaphobetor	arcade		35	25	45	0.83	0.2	0.11	18400	1.13
+megaphobetorboss	arcade		35	25	27	0.83	0.2	0.11	18400	1.13
+melodysmansion	gallery		26	19	96	0.76	0.34	0.095	14900	1.15
+milksong	close		13	11	22	0.58	0.18	0.035	17000	1.02
+mischief	street		27	18	96	0.76	0.28	0.13	14200	1.13
+neosfmedicalex	room		19	13	54	0.68	0.24	0.07	13400	1.08
+outsidestardust	outside		24	18	48	0.81	0.31	0.11	5200	0.93
+parallaxaction	chase		39	27	78	0.87	0.26	0.15	17900	1.18
+parallaxserverroom	vault	parallax	34	25	85.264	0.81	0.42	0.15	9300	1.12
+parallaxsewer	vault	parallax	34	25	85.264	0.81	0.42	0.15	9300	1.12
+parallaxunderfire	vault	parallax	34	25	85.264	0.81	0.42	0.15	9300	1.12
+pausemusic	close		13	11	49	0.58	0.18	0.035	17000	1.02
+phobetorheart	arcade		35	25	22	0.83	0.2	0.11	18400	1.13
+police station	room		19	13	78	0.68	0.24	0.07	13400	1.08
+pubcrawl	club	pub	25	14	19.794	0.82	0.32	0.18	18400	1.26
+pubcrawloutside	outside	pub	25	14	19.794	0.81	0.31	0.11	5200	0.93
+raponlymemories	club		31	21	31	0.82	0.32	0.18	18400	1.26
+romusersetup	room		19	13	82	0.68	0.24	0.07	13400	1.08
+scrubbing for clues	room		19	13	96	0.68	0.24	0.07	13400	1.08
+sik	arcade		35	25	41	0.83	0.2	0.11	18400	1.13
+stardust club	club		31	21	84	0.82	0.32	0.18	18400	1.26
+stardusthybridnight	club	stardust	26	17	82.566	0.82	0.32	0.18	18400	1.26
+stardustoutsidech2	outside	stardust	26	17	82.566	0.81	0.31	0.11	5200	0.93
+stardustphone	phone		19	12	36	0.72	0.14	0.055	4700	0.89
+strangedevelopments	pressure		38	27	44	0.83	0.38	0.19	11700	1.12
+sunset apartments	warm		18	12	84	0.62	0.25	0.05	15500	1.08
+sunset apartmentsex	warm		18	12	47	0.62	0.25	0.05	15500	1.08
+tellmeyourstory	close		13	11	96	0.58	0.18	0.035	17000	1.02
+tension	pressure		38	27	96	0.83	0.38	0.19	11700	1.12
+thefinalrun	chase		39	27	63	0.87	0.26	0.15	17900	1.18
+titlescreen	stage		31	20	96	0.82	0.36	0.13	16900	1.16
+tomcat theme	room		19	13	96	0.68	0.24	0.07	13400	1.08
+turing'ssadness	memory		23	20	63	0.74	0.43	0.12	13600	1.16
+turing'swaynegative	memory	turing	21	16	135.375	0.74	0.43	0.12	13600	1.16
+turing'swaypositive	warm	turing	21	16	135.375	0.62	0.25	0.05	15500	1.08
+turing'swayvanilla	close	turing	21	16	135.375	0.58	0.18	0.035	17000	1.02
+turingentrance	street		27	18	22	0.76	0.28	0.13	14200	1.13
+turingtheme	warm		18	12	65	0.62	0.25	0.05	15500	1.08
+welcometoneosf	stage		31	20	96	0.82	0.36	0.13	16900	1.16
+zone3	arcade		35	25	54	0.83	0.2	0.11	18400	1.13
