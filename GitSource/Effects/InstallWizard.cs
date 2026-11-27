@@ -85,7 +85,7 @@ internal sealed class InstallWizard : Form
         this.startMenuShortcut = startMenuShortcut;
         managed = ManagedInstall.IsManaged(installFolder);
         shortcutsPending = firstRun && managed;
-        Text = $"NeonLoop Setup · {SetupPackage.ModSubtitle} · b {typeof(InstallWizard).Assembly.GetName().Version!.ToString(3)}";
+        Text = $"NeonLoop Setup · {SetupPackage.ModSubtitle} · {typeof(InstallWizard).Assembly.GetName().Version!.ToString(3)}";
         Icon = EffectsLauncher.InstallerIcon ?? Icon;
         Font = new Font("Segoe UI", 14);
         AutoScaleDimensions = new SizeF(96, 96);
