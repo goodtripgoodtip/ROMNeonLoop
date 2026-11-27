@@ -1,0 +1,9 @@
+/dist/
+/dist-release/
+/.release-work/
+/GitSource/.build/
+/GitSource/bin/
+/GitSource/obj/
+/GitSource/out/
+__pycache__/
+*.pyc
