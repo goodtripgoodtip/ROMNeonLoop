@@ -1,0 +1,674 @@
+{
+  "with-these-hands": {
+    "slug": "with-these-hands",
+    "title": "With These Hands",
+    "source": "https://www.scottbuckley.com.au/library/with-these-hands/",
+    "file": "with-these-hands.mp3",
+    "mood": "mystery"
+  },
+  "home-was-you": {
+    "slug": "home-was-you",
+    "title": "Home Was You",
+    "source": "https://www.scottbuckley.com.au/library/instrumentation/synth-pad/",
+    "file": "home-was-you.mp3",
+    "mood": "quiet"
+  },
+  "simulacra": {
+    "slug": "simulacra",
+    "title": "Simulacra",
+    "source": "https://www.scottbuckley.com.au/library/simulacra/",
+    "file": "simulacra.mp3",
+    "mood": "action"
+  },
+  "the-weight-of-air-katabasis-ii": {
+    "slug": "the-weight-of-air-katabasis-ii",
+    "title": "The Weight of Air – Katabasis II",
+    "source": "https://www.scottbuckley.com.au/library/mood/uplifting/",
+    "file": "the-weight-of-air-katabasis-ii.mp3",
+    "mood": "city"
+  },
+  "echoes-of-home": {
+    "slug": "echoes-of-home",
+    "title": "Echoes Of Home",
+    "source": "https://www.scottbuckley.com.au/library/echoes-of-home/",
+    "file": "echoes-of-home.mp3",
+    "mood": "credits"
+  },
+  "unraveling": {
+    "slug": "unraveling",
+    "title": "Unraveling",
+    "source": "https://www.scottbuckley.com.au/library/unraveling/",
+    "file": "unraveling.mp3",
+    "mood": "mystery"
+  },
+  "convergence": {
+    "slug": "convergence",
+    "title": "Convergence",
+    "source": "https://www.scottbuckley.com.au/library/convergence/",
+    "file": "convergence.mp3",
+    "mood": "quiet"
+  },
+  "born-of-the-sky": {
+    "slug": "born-of-the-sky",
+    "title": "Born Of The Sky",
+    "source": "https://www.scottbuckley.com.au/library/born-of-the-sky/",
+    "file": "born-of-the-sky.mp3",
+    "mood": "city"
+  },
+  "echoes": {
+    "slug": "echoes",
+    "title": "Echoes",
+    "source": "https://www.scottbuckley.com.au/library/echoes/",
+    "file": "echoes.mp3",
+    "mood": "credits"
+  },
+  "aphelion": {
+    "slug": "aphelion",
+    "title": "Aphelion",
+    "source": "https://www.scottbuckley.com.au/library/aphelion/",
+    "file": "aphelion.mp3",
+    "mood": "mystery"
+  },
+  "escape-velocity": {
+    "slug": "escape-velocity",
+    "title": "Escape Velocity",
+    "source": "https://www.scottbuckley.com.au/library/escape-velocity/",
+    "file": "escape-velocity.mp3",
+    "mood": "quiet"
+  },
+  "amberlight": {
+    "slug": "amberlight",
+    "title": "Amberlight",
+    "source": "https://www.scottbuckley.com.au/library/amberlight/",
+    "file": "amberlight.mp3",
+    "mood": "city"
+  },
+  "the-long-dark": {
+    "slug": "the-long-dark",
+    "title": "The Long Dark",
+    "source": "https://www.scottbuckley.com.au/library/the-long-dark/",
+    "file": "the-long-dark.mp3",
+    "mood": "credits"
+  },
+  "starfire": {
+    "slug": "starfire",
+    "title": "Starfire",
+    "source": "https://www.scottbuckley.com.au/library/starfire/",
+    "file": "starfire.mp3",
+    "mood": "mystery"
+  },
+  "cirrus": {
+    "slug": "cirrus",
+    "title": "Cirrus",
+    "source": "https://www.scottbuckley.com.au/library/cirrus/",
+    "file": "cirrus.mp3",
+    "mood": "quiet"
+  },
+  "hyperion": {
+    "slug": "hyperion",
+    "title": "Hyperion",
+    "source": "https://www.scottbuckley.com.au/library/hyperion/",
+    "file": "hyperion.mp3",
+    "mood": "city"
+  },
+  "last-and-first-light": {
+    "slug": "last-and-first-light",
+    "title": "Last and First Light",
+    "source": "https://www.scottbuckley.com.au/library/last-and-first-light/",
+    "file": "last-and-first-light.mp3",
+    "mood": "credits"
+  },
+  "penumbra": {
+    "slug": "penumbra",
+    "title": "Penumbra",
+    "source": "https://www.scottbuckley.com.au/library/penumbra/",
+    "file": "penumbra.mp3",
+    "mood": "mystery"
+  },
+  "artemis": {
+    "slug": "artemis",
+    "title": "Artemis",
+    "source": "https://www.scottbuckley.com.au/library/artemis/",
+    "file": "artemis.mp3",
+    "mood": "quiet"
+  },
+  "simplicity": {
+    "slug": "simplicity",
+    "title": "Simplicity",
+    "source": "https://www.scottbuckley.com.au/library/simplicity/",
+    "file": "simplicity.mp3",
+    "mood": "city"
+  },
+  "adrift-among-infinite-stars": {
+    "slug": "adrift-among-infinite-stars",
+    "title": "Adrift Among Infinite Stars",
+    "source": "https://www.scottbuckley.com.au/library/adrift-among-infinite-stars/",
+    "file": "adrift-among-infinite-stars.mp3",
+    "mood": "credits"
+  },
+  "eyes-in-the-void": {
+    "slug": "eyes-in-the-void",
+    "title": "Eyes In The Void",
+    "source": "https://www.scottbuckley.com.au/library/eyes-in-the-void/",
+    "file": "eyes-in-the-void.mp3",
+    "mood": "mystery"
+  },
+  "there-was-a-time": {
+    "slug": "there-was-a-time",
+    "title": "There Was A Time",
+    "source": "https://www.scottbuckley.com.au/library/there-was-a-time/",
+    "file": "there-was-a-time.mp3",
+    "mood": "quiet"
+  },
+  "rise-above": {
+    "slug": "rise-above",
+    "title": "Rise Above",
+    "source": "https://www.scottbuckley.com.au/library/rise-above/",
+    "file": "rise-above.mp3",
+    "mood": "city"
+  },
+  "celestial": {
+    "slug": "celestial",
+    "title": "Celestial",
+    "source": "https://www.scottbuckley.com.au/library/celestial/",
+    "file": "celestial.mp3",
+    "mood": "credits"
+  },
+  "incredulity": {
+    "slug": "incredulity",
+    "title": "Incredulity",
+    "source": "https://www.scottbuckley.com.au/library/incredulity/",
+    "file": "incredulity.mp3",
+    "mood": "mystery"
+  },
+  "race-the-sun": {
+    "slug": "race-the-sun",
+    "title": "Race The Sun",
+    "source": "https://www.scottbuckley.com.au/library/race-the-sun/",
+    "file": "race-the-sun.mp3",
+    "mood": "quiet"
+  },
+  "golden-hour": {
+    "slug": "golden-hour",
+    "title": "Golden Hour",
+    "source": "https://www.scottbuckley.com.au/library/golden-hour/",
+    "file": "golden-hour.mp3",
+    "mood": "city"
+  },
+  "i-walk-with-ghosts": {
+    "slug": "i-walk-with-ghosts",
+    "title": "I Walk With Ghosts",
+    "source": "https://www.scottbuckley.com.au/library/i-walk-with-ghosts/",
+    "file": "i-walk-with-ghosts.mp3",
+    "mood": "credits"
+  },
+  "ride-the-wind": {
+    "slug": "ride-the-wind",
+    "title": "Ride The Wind",
+    "source": "https://www.scottbuckley.com.au/library/ride-the-wind/",
+    "file": "ride-the-wind.mp3",
+    "mood": "mystery"
+  },
+  "aurora": {
+    "slug": "aurora",
+    "title": "Aurora",
+    "source": "https://www.scottbuckley.com.au/library/aurora/",
+    "file": "aurora.mp3",
+    "mood": "quiet"
+  },
+  "first-snow": {
+    "slug": "first-snow",
+    "title": "First Snow",
+    "source": "https://www.scottbuckley.com.au/library/first-snow/",
+    "file": "first-snow.mp3",
+    "mood": "city"
+  },
+  "inflection": {
+    "slug": "inflection",
+    "title": "Inflection",
+    "source": "https://www.scottbuckley.com.au/library/inflection/",
+    "file": "inflection.mp3",
+    "mood": "credits"
+  },
+  "meanwhile": {
+    "slug": "meanwhile",
+    "title": "Meanwhile",
+    "source": "https://www.scottbuckley.com.au/library/meanwhile/",
+    "file": "meanwhile.mp3",
+    "mood": "mystery"
+  },
+  "chasing-daylight": {
+    "slug": "chasing-daylight",
+    "title": "Chasing Daylight",
+    "source": "https://www.scottbuckley.com.au/library/chasing-daylight/",
+    "file": "chasing-daylight.mp3",
+    "mood": "quiet"
+  },
+  "a-kind-of-hope": {
+    "slug": "a-kind-of-hope",
+    "title": "A Kind Of Hope",
+    "source": "https://www.scottbuckley.com.au/library/a-kind-of-hope/",
+    "file": "a-kind-of-hope.mp3",
+    "mood": "city"
+  },
+  "helios": {
+    "slug": "helios",
+    "title": "Helios",
+    "source": "https://www.scottbuckley.com.au/library/helios/",
+    "file": "helios.mp3",
+    "mood": "credits"
+  },
+  "incantation": {
+    "slug": "incantation",
+    "title": "Incantation",
+    "source": "https://www.scottbuckley.com.au/library/incantation/",
+    "file": "incantation.mp3",
+    "mood": "mystery"
+  },
+  "the-climb": {
+    "slug": "the-climb",
+    "title": "The Climb",
+    "source": "https://www.scottbuckley.com.au/library/the-climb/",
+    "file": "the-climb.mp3",
+    "mood": "quiet"
+  },
+  "resolutions": {
+    "slug": "resolutions",
+    "title": "Resolutions",
+    "source": "https://www.scottbuckley.com.au/library/resolutions/",
+    "file": "resolutions.mp3",
+    "mood": "city"
+  },
+  "absolution": {
+    "slug": "absolution",
+    "title": "Absolution",
+    "source": "https://www.scottbuckley.com.au/library/absolution/",
+    "file": "absolution.mp3",
+    "mood": "credits"
+  },
+  "shoulders-of-giants": {
+    "slug": "shoulders-of-giants",
+    "title": "Shoulders Of Giants",
+    "source": "https://www.scottbuckley.com.au/library/shoulders-of-giants/",
+    "file": "shoulders-of-giants.mp3",
+    "mood": "mystery"
+  },
+  "jul": {
+    "slug": "jul",
+    "title": "Jul",
+    "source": "https://www.scottbuckley.com.au/library/jul/",
+    "file": "jul.mp3",
+    "mood": "quiet"
+  },
+  "frankincense-and-myrrh": {
+    "slug": "frankincense-and-myrrh",
+    "title": "Frankincense and Myrrh",
+    "source": "https://www.scottbuckley.com.au/library/frankincense-and-myrrh/",
+    "file": "frankincense-and-myrrh.mp3",
+    "mood": "city"
+  },
+  "filaments": {
+    "slug": "filaments",
+    "title": "Filaments",
+    "source": "https://www.scottbuckley.com.au/library/filaments/",
+    "file": "filaments.mp3",
+    "mood": "credits"
+  },
+  "at-the-end-of-all-things": {
+    "slug": "at-the-end-of-all-things",
+    "title": "At The End Of All Things",
+    "source": "https://www.scottbuckley.com.au/library/at-the-end-of-all-things/",
+    "file": "at-the-end-of-all-things.mp3",
+    "mood": "mystery"
+  },
+  "solecism": {
+    "slug": "solecism",
+    "title": "Solecism",
+    "source": "https://www.scottbuckley.com.au/library/solecism/",
+    "file": "solecism.mp3",
+    "mood": "quiet"
+  },
+  "bring-me-the-sky": {
+    "slug": "bring-me-the-sky",
+    "title": "Bring Me The Sky",
+    "source": "https://www.scottbuckley.com.au/library/bring-me-the-sky/",
+    "file": "bring-me-the-sky.mp3",
+    "mood": "city"
+  },
+  "monomyth-the-call": {
+    "slug": "monomyth-the-call",
+    "title": "Monomyth – The Call",
+    "source": "https://www.scottbuckley.com.au/library/the-call/",
+    "file": "monomyth-the-call.mp3",
+    "mood": "credits"
+  },
+  "sentinel": {
+    "slug": "sentinel",
+    "title": "Sentinel",
+    "source": "https://www.scottbuckley.com.au/library/sentinel/",
+    "file": "sentinel.mp3",
+    "mood": "mystery"
+  },
+  "beautiful-oblivion": {
+    "slug": "beautiful-oblivion",
+    "title": "Beautiful Oblivion",
+    "source": "https://www.scottbuckley.com.au/library/beautiful-oblivion/",
+    "file": "beautiful-oblivion.mp3",
+    "mood": "quiet"
+  },
+  "wayfarer": {
+    "slug": "wayfarer",
+    "title": "Wayfarer",
+    "source": "https://www.scottbuckley.com.au/library/wayfarer/",
+    "file": "wayfarer.mp3",
+    "mood": "city"
+  },
+  "monomyth-the-fall": {
+    "slug": "monomyth-the-fall",
+    "title": "Monomyth – The Fall",
+    "source": "https://www.scottbuckley.com.au/library/mood/emotional/page/2/",
+    "file": "monomyth-the-fall.mp3",
+    "mood": "credits"
+  },
+  "clear-skies": {
+    "slug": "clear-skies",
+    "title": "Clear Skies",
+    "source": "https://www.scottbuckley.com.au/library/clear-skies/",
+    "file": "clear-skies.mp3",
+    "mood": "mystery"
+  },
+  "electric-dreams": {
+    "slug": "electric-dreams",
+    "title": "Electric Dreams",
+    "source": "https://www.scottbuckley.com.au/library/electric-dreams/",
+    "file": "electric-dreams.mp3",
+    "mood": "quiet"
+  },
+  "life-in-silico": {
+    "slug": "life-in-silico",
+    "title": "Life in Silico",
+    "source": "https://www.scottbuckley.com.au/library/life-in-silico/",
+    "file": "life-in-silico.mp3",
+    "mood": "city"
+  },
+  "the-great-sea": {
+    "slug": "the-great-sea",
+    "title": "The Great Sea",
+    "source": "https://www.scottbuckley.com.au/library/the-great-sea/",
+    "file": "the-great-sea.mp3",
+    "mood": "mystery"
+  },
+  "luminance": {
+    "slug": "luminance",
+    "title": "Luminance",
+    "source": "https://www.scottbuckley.com.au/library/luminance/",
+    "file": "luminance.mp3",
+    "mood": "quiet"
+  },
+  "affirmations": {
+    "slug": "affirmations",
+    "title": "Affirmations",
+    "source": "https://www.scottbuckley.com.au/library/affirmations/",
+    "file": "affirmations.mp3",
+    "mood": "city"
+  },
+  "ignis": {
+    "slug": "ignis",
+    "title": "Ignis",
+    "source": "https://www.scottbuckley.com.au/library/ignis/",
+    "file": "ignis.mp3",
+    "mood": "mystery"
+  },
+  "hiraeth": {
+    "slug": "hiraeth",
+    "title": "Hiraeth",
+    "source": "https://www.scottbuckley.com.au/library/hiraeth/",
+    "file": "hiraeth.mp3",
+    "mood": "quiet"
+  },
+  "felicity": {
+    "slug": "felicity",
+    "title": "Felicity",
+    "source": "https://www.scottbuckley.com.au/library/felicity/",
+    "file": "felicity.mp3",
+    "mood": "city"
+  },
+  "cicadas": {
+    "slug": "cicadas",
+    "title": "Cicadas",
+    "source": "https://www.scottbuckley.com.au/library/cicadas/",
+    "file": "cicadas.mp3",
+    "mood": "mystery"
+  },
+  "twilight-echo": {
+    "slug": "twilight-echo",
+    "title": "Twilight Echo",
+    "source": "https://www.scottbuckley.com.au/library/twilight-echo/",
+    "file": "twilight-echo.mp3",
+    "mood": "quiet"
+  },
+  "where-stars-fall": {
+    "slug": "where-stars-fall",
+    "title": "Where Stars Fall",
+    "source": "https://www.scottbuckley.com.au/library/where-stars-fall/",
+    "file": "where-stars-fall.mp3",
+    "mood": "city"
+  },
+  "shadows-and-dust": {
+    "slug": "shadows-and-dust",
+    "title": "Shadows and Dust",
+    "source": "https://www.scottbuckley.com.au/library/shadows-and-dust/",
+    "file": "shadows-and-dust.mp3",
+    "mood": "mystery"
+  },
+  "machina": {
+    "slug": "machina",
+    "title": "Machina",
+    "source": "https://www.scottbuckley.com.au/library/machina/",
+    "file": "machina.mp3",
+    "mood": "quiet"
+  },
+  "in-dreams": {
+    "slug": "in-dreams",
+    "title": "In Dreams",
+    "source": "https://www.scottbuckley.com.au/library/in-dreams/",
+    "file": "in-dreams.mp3",
+    "mood": "city"
+  },
+  "phase-shift": {
+    "slug": "phase-shift",
+    "title": "Phase Shift",
+    "source": "https://www.scottbuckley.com.au/library/phase-shift/",
+    "file": "phase-shift.mp3",
+    "mood": "mystery"
+  },
+  "neon": {
+    "slug": "neon",
+    "title": "Neon",
+    "source": "https://www.scottbuckley.com.au/library/neon/",
+    "file": "neon.mp3",
+    "mood": "quiet"
+  },
+  "soar": {
+    "slug": "soar",
+    "title": "Soar",
+    "source": "https://www.scottbuckley.com.au/library/soar/",
+    "file": "soar.mp3",
+    "mood": "city"
+  },
+  "effervescence": {
+    "slug": "effervescence",
+    "title": "Effervescence",
+    "source": "https://www.scottbuckley.com.au/library/effervescence/",
+    "file": "effervescence.mp3",
+    "mood": "mystery"
+  },
+  "omega": {
+    "slug": "omega",
+    "title": "Omega",
+    "source": "https://www.scottbuckley.com.au/library/omega/",
+    "file": "omega.mp3",
+    "mood": "quiet"
+  },
+  "inbound": {
+    "slug": "inbound",
+    "title": "Inbound",
+    "source": "https://www.scottbuckley.com.au/library/inbound/",
+    "file": "inbound.mp3",
+    "mood": "city"
+  },
+  "within-our-nature": {
+    "slug": "within-our-nature",
+    "title": "Within Our Nature",
+    "source": "https://www.scottbuckley.com.au/library/within-our-nature/",
+    "file": "within-our-nature.mp3",
+    "mood": "mystery"
+  },
+  "tears-in-rain": {
+    "slug": "tears-in-rain",
+    "title": "Tears in Rain",
+    "source": "https://www.scottbuckley.com.au/library/tears-in-rain/",
+    "file": "tears-in-rain.mp3",
+    "mood": "quiet"
+  },
+  "monomyth-the-fury": {
+    "slug": "monomyth-the-fury",
+    "title": "Monomyth – The Fury",
+    "source": "https://www.scottbuckley.com.au/library/the-fury/",
+    "file": "monomyth-the-fury.mp3",
+    "mood": "city"
+  },
+  "legacy": {
+    "slug": "legacy",
+    "title": "Legacy",
+    "source": "https://www.scottbuckley.com.au/library/legacy/",
+    "file": "legacy.mp3",
+    "mood": "mystery"
+  },
+  "monomyth-the-things-that-keep-us-here": {
+    "slug": "monomyth-the-things-that-keep-us-here",
+    "title": "Monomyth – The Things That Keep Us Here",
+    "source": "https://www.scottbuckley.com.au/library/the-things-that-keep-us-here/",
+    "file": "monomyth-the-things-that-keep-us-here.mp3",
+    "mood": "quiet"
+  },
+  "icarus-2019-remaster": {
+    "slug": "icarus-2019-remaster",
+    "title": "Icarus (2019 Remaster)",
+    "source": "https://www.scottbuckley.com.au/library/icarus-2019/",
+    "file": "icarus-2019-remaster.mp3",
+    "mood": "city"
+  },
+  "hymn-to-the-dawn": {
+    "slug": "hymn-to-the-dawn",
+    "title": "Hymn to the Dawn",
+    "source": "https://www.scottbuckley.com.au/library/hymn-to-the-dawn/",
+    "file": "hymn-to-the-dawn.mp3",
+    "mood": "mystery"
+  },
+  "monomyth-the-vision": {
+    "slug": "monomyth-the-vision",
+    "title": "Monomyth – The Vision",
+    "source": "https://www.scottbuckley.com.au/library/instrumentation/synth-pad/page/2/",
+    "file": "monomyth-the-vision.mp3",
+    "mood": "quiet"
+  },
+  "permafrost": {
+    "slug": "permafrost",
+    "title": "Permafrost",
+    "source": "https://www.scottbuckley.com.au/library/permafrost/",
+    "file": "permafrost.mp3",
+    "mood": "mystery"
+  },
+  "monomyth-the-exodus": {
+    "slug": "monomyth-the-exodus",
+    "title": "Monomyth – The Exodus",
+    "source": "https://www.scottbuckley.com.au/library/the-exodus/",
+    "file": "monomyth-the-exodus.mp3",
+    "mood": "quiet"
+  },
+  "moonlight": {
+    "slug": "moonlight",
+    "title": "Moonlight",
+    "source": "https://www.scottbuckley.com.au/library/moonlight/",
+    "file": "moonlight.mp3",
+    "mood": "mystery"
+  },
+  "petrichor": {
+    "slug": "petrichor",
+    "title": "Petrichor",
+    "source": "https://www.scottbuckley.com.au/library/petrichor/",
+    "file": "petrichor.mp3",
+    "mood": "quiet"
+  },
+  "into-the-unknown": {
+    "slug": "into-the-unknown",
+    "title": "Into The Unknown",
+    "source": "https://www.scottbuckley.com.au/library/into-the-unknown/",
+    "file": "into-the-unknown.mp3",
+    "mood": "mystery"
+  },
+  "nightfall": {
+    "slug": "nightfall",
+    "title": "Nightfall",
+    "source": "https://www.scottbuckley.com.au/library/nightfall/",
+    "file": "nightfall.mp3",
+    "mood": "quiet"
+  },
+  "in-search-of-solitude": {
+    "slug": "in-search-of-solitude",
+    "title": "In Search Of Solitude",
+    "source": "https://www.scottbuckley.com.au/library/in-search-of-solitude/",
+    "file": "in-search-of-solitude.mp3",
+    "mood": "mystery"
+  },
+  "decoherence": {
+    "slug": "decoherence",
+    "title": "Decoherence",
+    "source": "https://www.scottbuckley.com.au/library/decoherence/",
+    "file": "decoherence.mp3",
+    "mood": "mystery"
+  },
+  "midvinter": {
+    "slug": "midvinter",
+    "title": "Midvinter ❄️",
+    "source": "https://www.scottbuckley.com.au/library/midvinter/",
+    "file": "midvinter.mp3",
+    "mood": "mystery"
+  },
+  "falling-together": {
+    "slug": "falling-together",
+    "title": "Falling Together",
+    "source": "https://www.scottbuckley.com.au/library/falling-together/",
+    "file": "falling-together.mp3",
+    "mood": "mystery"
+  },
+  "goliath": {
+    "slug": "goliath",
+    "title": "Goliath",
+    "source": "https://www.scottbuckley.com.au/library/goliath/",
+    "file": "goliath.mp3",
+    "mood": "mystery"
+  },
+  "the-long-way-home": {
+    "slug": "the-long-way-home",
+    "title": "The Long Way Home",
+    "source": "https://www.scottbuckley.com.au/library/the-long-way-home/",
+    "file": "the-long-way-home.mp3",
+    "mood": "mystery"
+  },
+  "beyond-these-walls": {
+    "slug": "beyond-these-walls",
+    "title": "Beyond These Walls",
+    "source": "https://www.scottbuckley.com.au/library/beyond-these-walls/",
+    "file": "beyond-these-walls.mp3",
+    "mood": "mystery"
+  },
+  "this-too-shall-pass": {
+    "slug": "this-too-shall-pass",
+    "title": "This Too Shall Pass",
+    "source": "https://www.scottbuckley.com.au/library/this-too-shall-pass/",
+    "file": "this-too-shall-pass.mp3",
+    "mood": "mystery"
+  }
+}
