@@ -1,0 +1,653 @@
+{
+  "consequence": {
+    "slug": "consequence",
+    "title": "Consequence",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100283",
+    "file": "consequence.mp3",
+    "mood": "mystery"
+  },
+  "lobby-time": {
+    "slug": "lobby-time",
+    "title": "Lobby Time",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1600054",
+    "file": "lobby-time.mp3",
+    "mood": "quiet"
+  },
+  "acid-trumpet": {
+    "slug": "acid-trumpet",
+    "title": "Acid Trumpet",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100339",
+    "file": "acid-trumpet.mp3",
+    "mood": "city"
+  },
+  "awesome-call": {
+    "slug": "awesome-call",
+    "title": "Awesome Call",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100317",
+    "file": "awesome-call.mp3",
+    "mood": "club"
+  },
+  "cool-blast": {
+    "slug": "cool-blast",
+    "title": "Cool Blast",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100281",
+    "file": "cool-blast.mp3",
+    "mood": "action"
+  },
+  "hard-boiled": {
+    "slug": "hard-boiled",
+    "title": "Hard Boiled",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1700076",
+    "file": "hard-boiled.mp3",
+    "mood": "mystery"
+  },
+  "space-jazz": {
+    "slug": "space-jazz",
+    "title": "Space Jazz",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2100030",
+    "file": "space-jazz.mp3",
+    "mood": "quiet"
+  },
+  "cut-trance": {
+    "slug": "cut-trance",
+    "title": "Cut Trance",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100273",
+    "file": "cut-trance.mp3",
+    "mood": "city"
+  },
+  "corncob": {
+    "slug": "corncob",
+    "title": "Corncob",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100565",
+    "file": "corncob.mp3",
+    "mood": "club"
+  },
+  "faster-does-it": {
+    "slug": "faster-does-it",
+    "title": "Faster Does It",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100794",
+    "file": "faster-does-it.mp3",
+    "mood": "action"
+  },
+  "i-knew-a-guy": {
+    "slug": "i-knew-a-guy",
+    "title": "I Knew a Guy",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100199",
+    "file": "i-knew-a-guy.mp3",
+    "mood": "mystery"
+  },
+  "airport-lounge": {
+    "slug": "airport-lounge",
+    "title": "Airport Lounge",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100806",
+    "file": "airport-lounge.mp3",
+    "mood": "quiet"
+  },
+  "mellowtron": {
+    "slug": "mellowtron",
+    "title": "Mellowtron",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300020",
+    "file": "mellowtron.mp3",
+    "mood": "city"
+  },
+  "covert-affair": {
+    "slug": "covert-affair",
+    "title": "Covert Affair",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100795",
+    "file": "covert-affair.mp3",
+    "mood": "club"
+  },
+  "opportunity-walks": {
+    "slug": "opportunity-walks",
+    "title": "Opportunity Walks",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100123",
+    "file": "opportunity-walks.mp3",
+    "mood": "action"
+  },
+  "night-on-the-docks-sax": {
+    "slug": "night-on-the-docks-sax",
+    "title": "Night on the Docks - Sax",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100137",
+    "file": "night-on-the-docks-sax.mp3",
+    "mood": "mystery"
+  },
+  "apero-hour": {
+    "slug": "apero-hour",
+    "title": "Apero Hour",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1700070",
+    "file": "apero-hour.mp3",
+    "mood": "quiet"
+  },
+  "nowhere-land": {
+    "slug": "nowhere-land",
+    "title": "Nowhere Land",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1600051",
+    "file": "nowhere-land.mp3",
+    "mood": "city"
+  },
+  "rocket-power": {
+    "slug": "rocket-power",
+    "title": "Rocket Power",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1600038",
+    "file": "rocket-power.mp3",
+    "mood": "action"
+  },
+  "on-the-cool-side": {
+    "slug": "on-the-cool-side",
+    "title": "On the Cool Side",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100124",
+    "file": "on-the-cool-side.mp3",
+    "mood": "mystery"
+  },
+  "odyssey": {
+    "slug": "odyssey",
+    "title": "Odyssey",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1500012",
+    "file": "odyssey.mp3",
+    "mood": "city"
+  },
+  "rollin-at-5": {
+    "slug": "rollin-at-5",
+    "title": "Rollin at 5",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1400029",
+    "file": "rollin-at-5.mp3",
+    "mood": "action"
+  },
+  "spy-glass": {
+    "slug": "spy-glass",
+    "title": "Spy Glass",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1500058",
+    "file": "spy-glass.mp3",
+    "mood": "mystery"
+  },
+  "backed-vibes": {
+    "slug": "backed-vibes",
+    "title": "Backed Vibes",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100422",
+    "file": "backed-vibes.mp3",
+    "mood": "quiet"
+  },
+  "hep-cats": {
+    "slug": "hep-cats",
+    "title": "Hep Cats",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1500022",
+    "file": "hep-cats.mp3",
+    "mood": "club"
+  },
+  "rollin-at-5-electronic": {
+    "slug": "rollin-at-5-electronic",
+    "title": "Rollin at 5 - electronic",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1400028",
+    "file": "rollin-at-5-electronic.mp3",
+    "mood": "action"
+  },
+  "as-i-figure": {
+    "slug": "as-i-figure",
+    "title": "As I Figure",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100323",
+    "file": "as-i-figure.mp3",
+    "mood": "mystery"
+  },
+  "backed-vibes-clean": {
+    "slug": "backed-vibes-clean",
+    "title": "Backed Vibes (clean)",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100479",
+    "file": "backed-vibes-clean.mp3",
+    "mood": "quiet"
+  },
+  "hot-swing": {
+    "slug": "hot-swing",
+    "title": "Hot Swing",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100202",
+    "file": "hot-swing.mp3",
+    "mood": "club"
+  },
+  "beauty-flow": {
+    "slug": "beauty-flow",
+    "title": "Beauty Flow",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1900008",
+    "file": "beauty-flow.mp3",
+    "mood": "action"
+  },
+  "bass-walker": {
+    "slug": "bass-walker",
+    "title": "Bass Walker",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1200071",
+    "file": "bass-walker.mp3",
+    "mood": "mystery"
+  },
+  "bass-soli": {
+    "slug": "bass-soli",
+    "title": "Bass Soli",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100309",
+    "file": "bass-soli.mp3",
+    "mood": "quiet"
+  },
+  "local-forecast": {
+    "slug": "local-forecast",
+    "title": "Local Forecast",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300010",
+    "file": "local-forecast.mp3",
+    "mood": "club"
+  },
+  "blipotron": {
+    "slug": "blipotron",
+    "title": "Blipotron",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100514",
+    "file": "blipotron.mp3",
+    "mood": "action"
+  },
+  "deadly-roulette": {
+    "slug": "deadly-roulette",
+    "title": "Deadly Roulette",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1600033",
+    "file": "deadly-roulette.mp3",
+    "mood": "mystery"
+  },
+  "bass-vibes": {
+    "slug": "bass-vibes",
+    "title": "Bass Vibes",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100462",
+    "file": "bass-vibes.mp3",
+    "mood": "quiet"
+  },
+  "local-forecast-elevator": {
+    "slug": "local-forecast-elevator",
+    "title": "Local Forecast - Elevator",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300012",
+    "file": "local-forecast-elevator.mp3",
+    "mood": "club"
+  },
+  "brain-dance": {
+    "slug": "brain-dance",
+    "title": "Brain Dance",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2300006",
+    "file": "brain-dance.mp3",
+    "mood": "action"
+  },
+  "fast-talkin": {
+    "slug": "fast-talkin",
+    "title": "Fast Talkin",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100590",
+    "file": "fast-talkin.mp3",
+    "mood": "mystery"
+  },
+  "bossa-antigua": {
+    "slug": "bossa-antigua",
+    "title": "Bossa Antigua",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1700069",
+    "file": "bossa-antigua.mp3",
+    "mood": "quiet"
+  },
+  "local-forecast-slower": {
+    "slug": "local-forecast-slower",
+    "title": "Local Forecast - Slower",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300011",
+    "file": "local-forecast-slower.mp3",
+    "mood": "club"
+  },
+  "captain-scurvy": {
+    "slug": "captain-scurvy",
+    "title": "Captain Scurvy",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1800000",
+    "file": "captain-scurvy.mp3",
+    "mood": "action"
+  },
+  "groove-grove": {
+    "slug": "groove-grove",
+    "title": "Groove Grove",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1200054",
+    "file": "groove-grove.mp3",
+    "mood": "mystery"
+  },
+  "cool-vibes": {
+    "slug": "cool-vibes",
+    "title": "Cool Vibes",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100863",
+    "file": "cool-vibes.mp3",
+    "mood": "quiet"
+  },
+  "no-good-layabout": {
+    "slug": "no-good-layabout",
+    "title": "No Good Layabout",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100131",
+    "file": "no-good-layabout.mp3",
+    "mood": "club"
+  },
+  "cognitive-dissonance": {
+    "slug": "cognitive-dissonance",
+    "title": "Cognitive Dissonance",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100289",
+    "file": "cognitive-dissonance.mp3",
+    "mood": "action"
+  },
+  "intractable": {
+    "slug": "intractable",
+    "title": "Intractable",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100194",
+    "file": "intractable.mp3",
+    "mood": "mystery"
+  },
+  "crinoline-dreams": {
+    "slug": "crinoline-dreams",
+    "title": "Crinoline Dreams",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1700073",
+    "file": "crinoline-dreams.mp3",
+    "mood": "quiet"
+  },
+  "off-to-osaka": {
+    "slug": "off-to-osaka",
+    "title": "Off to Osaka",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100128",
+    "file": "off-to-osaka.mp3",
+    "mood": "club"
+  },
+  "cruising-for-goblins": {
+    "slug": "cruising-for-goblins",
+    "title": "Cruising for Goblins",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1800002",
+    "file": "cruising-for-goblins.mp3",
+    "mood": "action"
+  },
+  "just-as-soon": {
+    "slug": "just-as-soon",
+    "title": "Just As Soon",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100185",
+    "file": "just-as-soon.mp3",
+    "mood": "mystery"
+  },
+  "deuces": {
+    "slug": "deuces",
+    "title": "Deuces",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1700075",
+    "file": "deuces.mp3",
+    "mood": "quiet"
+  },
+  "semi-funk": {
+    "slug": "semi-funk",
+    "title": "Semi-Funk",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100083",
+    "file": "semi-funk.mp3",
+    "mood": "club"
+  },
+  "cut-and-dry": {
+    "slug": "cut-and-dry",
+    "title": "Cut and Dry",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100852",
+    "file": "cut-and-dry.mp3",
+    "mood": "action"
+  },
+  "kool-kats": {
+    "slug": "kool-kats",
+    "title": "Kool Kats",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100601",
+    "file": "kool-kats.mp3",
+    "mood": "mystery"
+  },
+  "george-street-shuffle": {
+    "slug": "george-street-shuffle",
+    "title": "George Street Shuffle",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300035",
+    "file": "george-street-shuffle.mp3",
+    "mood": "quiet"
+  },
+  "sidewalk-shade": {
+    "slug": "sidewalk-shade",
+    "title": "Sidewalk Shade",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1200103",
+    "file": "sidewalk-shade.mp3",
+    "mood": "club"
+  },
+  "cut-and-run": {
+    "slug": "cut-and-run",
+    "title": "Cut and Run",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100851",
+    "file": "cut-and-run.mp3",
+    "mood": "action"
+  },
+  "night-on-the-docks-piano": {
+    "slug": "night-on-the-docks-piano",
+    "title": "Night on the Docks - Piano",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100135",
+    "file": "night-on-the-docks-piano.mp3",
+    "mood": "mystery"
+  },
+  "in-your-arms": {
+    "slug": "in-your-arms",
+    "title": "In Your Arms",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1500042",
+    "file": "in-your-arms.mp3",
+    "mood": "quiet"
+  },
+  "sidewalk-shade-slower": {
+    "slug": "sidewalk-shade-slower",
+    "title": "Sidewalk Shade - slower",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1200104",
+    "file": "sidewalk-shade-slower.mp3",
+    "mood": "club"
+  },
+  "cyborg-ninja": {
+    "slug": "cyborg-ninja",
+    "title": "Cyborg Ninja",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1600008",
+    "file": "cyborg-ninja.mp3",
+    "mood": "action"
+  },
+  "night-on-the-docks-trumpet": {
+    "slug": "night-on-the-docks-trumpet",
+    "title": "Night on the Docks - Trumpet",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100136",
+    "file": "night-on-the-docks-trumpet.mp3",
+    "mood": "mystery"
+  },
+  "jazz-brunch": {
+    "slug": "jazz-brunch",
+    "title": "Jazz Brunch",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1700074",
+    "file": "jazz-brunch.mp3",
+    "mood": "quiet"
+  },
+  "sweeter-vermouth": {
+    "slug": "sweeter-vermouth",
+    "title": "Sweeter Vermouth",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100712",
+    "file": "sweeter-vermouth.mp3",
+    "mood": "club"
+  },
+  "dance-monster": {
+    "slug": "dance-monster",
+    "title": "Dance Monster",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100272",
+    "file": "dance-monster.mp3",
+    "mood": "action"
+  },
+  "on-the-ground": {
+    "slug": "on-the-ground",
+    "title": "On the Ground",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1400030",
+    "file": "on-the-ground.mp3",
+    "mood": "mystery"
+  },
+  "long-stroll": {
+    "slug": "long-stroll",
+    "title": "Long Stroll",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100174",
+    "file": "long-stroll.mp3",
+    "mood": "quiet"
+  },
+  "vegas-glitz": {
+    "slug": "vegas-glitz",
+    "title": "Vegas Glitz",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100026",
+    "file": "vegas-glitz.mp3",
+    "mood": "club"
+  },
+  "deep-and-dirty": {
+    "slug": "deep-and-dirty",
+    "title": "Deep and Dirty",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1900021",
+    "file": "deep-and-dirty.mp3",
+    "mood": "action"
+  },
+  "shades-of-spring": {
+    "slug": "shades-of-spring",
+    "title": "Shades of Spring",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100080",
+    "file": "shades-of-spring.mp3",
+    "mood": "mystery"
+  },
+  "mining-by-moonlight": {
+    "slug": "mining-by-moonlight",
+    "title": "Mining by Moonlight",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1200089",
+    "file": "mining-by-moonlight.mp3",
+    "mood": "quiet"
+  },
+  "ambler": {
+    "slug": "ambler",
+    "title": "Ambler",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300019",
+    "file": "ambler.mp3",
+    "mood": "club"
+  },
+  "delightful-d": {
+    "slug": "delightful-d",
+    "title": "Delightful D",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1600057",
+    "file": "delightful-d.mp3",
+    "mood": "action"
+  },
+  "walking-along": {
+    "slug": "walking-along",
+    "title": "Walking Along",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100020",
+    "file": "walking-along.mp3",
+    "mood": "mystery"
+  },
+  "night-in-venice": {
+    "slug": "night-in-venice",
+    "title": "Night in Venice",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1900056",
+    "file": "night-in-venice.mp3",
+    "mood": "quiet"
+  },
+  "balloon-game": {
+    "slug": "balloon-game",
+    "title": "Balloon Game",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1700063",
+    "file": "balloon-game.mp3",
+    "mood": "club"
+  },
+  "edm-detection-mode": {
+    "slug": "edm-detection-mode",
+    "title": "EDM Detection Mode",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1500026",
+    "file": "edm-detection-mode.mp3",
+    "mood": "action"
+  },
+  "8bit-dungeon-boss": {
+    "slug": "8bit-dungeon-boss",
+    "title": "8bit Dungeon Boss",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1200067",
+    "file": "8bit-dungeon-boss.mp3",
+    "mood": "mystery"
+  },
+  "nouvelle-noel": {
+    "slug": "nouvelle-noel",
+    "title": "Nouvelle Noel",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1700072",
+    "file": "nouvelle-noel.mp3",
+    "mood": "quiet"
+  },
+  "bit-quest": {
+    "slug": "bit-quest",
+    "title": "Bit Quest",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1500073",
+    "file": "bit-quest.mp3",
+    "mood": "club"
+  },
+  "exit-the-premises": {
+    "slug": "exit-the-premises",
+    "title": "Exit the Premises",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1500029",
+    "file": "exit-the-premises.mp3",
+    "mood": "action"
+  },
+  "8bit-dungeon-level": {
+    "slug": "8bit-dungeon-level",
+    "title": "8bit Dungeon Level",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1200066",
+    "file": "8bit-dungeon-level.mp3",
+    "mood": "mystery"
+  },
+  "on-hold-for-you": {
+    "slug": "on-hold-for-you",
+    "title": "On Hold for You",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN2000019",
+    "file": "on-hold-for-you.mp3",
+    "mood": "quiet"
+  },
+  "bit-shift": {
+    "slug": "bit-shift",
+    "title": "Bit Shift",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1600045",
+    "file": "bit-shift.mp3",
+    "mood": "club"
+  },
+  "furious-freak": {
+    "slug": "furious-freak",
+    "title": "Furious Freak",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1600021",
+    "file": "furious-freak.mp3",
+    "mood": "action"
+  },
+  "babylon": {
+    "slug": "babylon",
+    "title": "Babylon",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100314",
+    "file": "babylon.mp3",
+    "mood": "mystery"
+  },
+  "past-sadness": {
+    "slug": "past-sadness",
+    "title": "Past Sadness",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1900007",
+    "file": "past-sadness.mp3",
+    "mood": "quiet"
+  },
+  "blip-stream": {
+    "slug": "blip-stream",
+    "title": "Blip Stream",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1500056",
+    "file": "blip-stream.mp3",
+    "mood": "club"
+  },
+  "go-cart": {
+    "slug": "go-cart",
+    "title": "Go Cart",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1300006",
+    "file": "go-cart.mp3",
+    "mood": "action"
+  },
+  "basement-floor": {
+    "slug": "basement-floor",
+    "title": "Basement Floor",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100538",
+    "file": "basement-floor.mp3",
+    "mood": "mystery"
+  },
+  "poppers-and-prosecco": {
+    "slug": "poppers-and-prosecco",
+    "title": "Poppers and Prosecco",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1700014",
+    "file": "poppers-and-prosecco.mp3",
+    "mood": "quiet"
+  },
+  "blippy-trance": {
+    "slug": "blippy-trance",
+    "title": "Blippy Trance",
+    "source": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1900055",
+    "file": "blippy-trance.mp3",
+    "mood": "club"
+  }
+}
