@@ -1,0 +1,9 @@
+This is a hobby release for games and entertainment. If it crashes, eats your save, or refuses to start, you are free to fix it. Please do not put it in charge of a defibrillator, emergency equipment, or anything else people depend on for safety.
+
+You can use, change, copy, and redistribute the original software and source code under the included MIT License. Keep the copyright and license notices when the MIT License requires them. Games, media, trademarks, and other third-party material retain their own terms. These installation terms add no restrictions to the rights granted by the MIT License.
+
+The Rubber Band-linked RomScoreDSP.dll is distributed under the GNU GPL, version 2 or later. These installation terms place no additional restrictions on rights granted by the GPL or the licenses for included music.
+
+To the fullest extent permitted by applicable law, this release is provided as is, without any express or implied warranty, including merchantability, fitness for a particular purpose, or noninfringement. The authors, contributors, and copyright holders are not liable for claims, damages, data loss, or other losses arising from this release or its use, to the extent applicable law allows.
+
+You keep any rights, remedies, and protections that applicable law does not allow you to waive. If you decline these terms, this installer closes the setup step without installing the release.
