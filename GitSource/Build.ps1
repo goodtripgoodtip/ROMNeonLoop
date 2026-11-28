@@ -115,7 +115,7 @@ Publish-Launcher
 
 $scoreSources = 'ReplacementScore.cs', 'OverlayInput.cs', 'ScoreControls.cs', 'NativeScore.cs',
     'CueDynamics.cs', 'PcmScoreVoice.cs', 'ScoreDirector.cs', 'StoryScore.cs', 'StoryCueMatcher.cs' | ForEach-Object { Join-Path $music $_ }
-$scoreSources += 'GameAccess.cs', 'GameplayHooks.cs', 'GameplaySaves.cs', 'GameplayExplore.cs', 'GameplayHud.cs',
+$scoreSources += 'GameAccess.cs', 'GameplayDefaults.cs', 'GameplayHooks.cs', 'GameplaySaves.cs', 'GameplayExplore.cs', 'GameplayHud.cs',
     'GameplayProgress.cs', 'GameplayHudArt.cs', 'GameplayFont.cs', 'GameplayFontAtlas.cs', 'WindowsFontRaster.cs' |
     ForEach-Object { Join-Path $gameplay $_ }
 $references = 'mscorlib.dll', 'netstandard.dll', 'System.Core.dll', 'System.dll', 'UnityEngine.CoreModule.dll',
