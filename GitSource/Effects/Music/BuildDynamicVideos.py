@@ -112,7 +112,7 @@ def contour_for(spec, start, sign):
     return np.array([[0., start], [approach, start], [accent, peak],
                      [release, start * .35], [1., start * .35]], dtype=float)
 
-def process_video(video, spec, profiles, lib, dry_folder, directory, cue_folder):
+def process_video(video, spec, profiles, lib, dry_folder, directory, cue_folder, completed=None):
     cue_id = spec["cue"]
     paths = {mode: directory / "DynamicVideos" / mode / video.name for mode in VARIANTS}
     ready = {mode for mode, file in paths.items() if file.is_file() and file.stat().st_size > 1024}
@@ -135,6 +135,8 @@ def process_video(video, spec, profiles, lib, dry_folder, directory, cue_folder)
         if "effects" not in ready:
             wet = effects(lib, dsp, music, profile, spec)
             write_video(video, combine(wet, dry, volume), paths["effects"])
+            if completed:
+                completed()
         for sign, word in ((1, "high"), (-1, "low")):
             dry_mode, wet_mode = "pitch-" + word, "both-" + word
             if dry_mode in ready and wet_mode in ready:
@@ -143,8 +145,12 @@ def process_video(video, spec, profiles, lib, dry_folder, directory, cue_folder)
             shifted = pitch(lib, dsp, music, start, contour_for(spec, start, sign))
             if dry_mode not in ready:
                 write_video(video, combine(shifted, dry, volume), paths[dry_mode])
+                if completed:
+                    completed()
             if wet_mode not in ready:
                 wet = effects(lib, dsp, shifted, profile, spec)
                 write_video(video, combine(wet, dry, volume), paths[wet_mode])
+                if completed:
+                    completed()
     finally:
         lib.RomScoreDestroy(dsp)
