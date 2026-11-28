@@ -3,22 +3,29 @@ import json
 import shutil
 import subprocess
 from pathlib import Path
+from threading import Event, Thread
 
 import numpy as np
 import torch
 
 from BuildDynamicVideos import VARIANTS, native, process_video, table
 from RemixVideos import score_video
-from SplitVideos import separate
+from SplitVideos import pending_stems, separate
 
 
 def progress(done, total, label):
     print(f"PROGRESS\t{done}\t{total}\t{label}", flush=True)
 
 def mixes_ready(output, names):
-    folders = [output / "Videos"] + [output / "DynamicVideos" / mode for mode in VARIANTS]
-    return all(file.is_file() and file.stat().st_size > 1024
-               for folder in folders for file in (folder / name for name in names))
+    return all(ready_file(file) for name in names for file in mixes(output, name))
+
+
+def mixes(output, name):
+    return [output / "Videos" / name] + [output / "DynamicVideos" / mode / name for mode in VARIANTS]
+
+
+def ready_file(file):
+    return file.is_file() and file.stat().st_size > 1024
 
 
 def probe(source):
@@ -44,9 +51,12 @@ def picture(source, output):
     partial.replace(output)
 
 
-def render_scene(name, videos, pictures, stems, output, cues, spec, profiles, dsp):
+def render_scene(name, videos, pictures, stems, output, cues, spec, profiles, dsp, completed=None):
     frame_track = pictures / name
-    picture(videos / name, frame_track)
+    if not ready_file(frame_track):
+        picture(videos / name, frame_track)
+        if completed:
+            completed()
     original_mix = output / "Videos" / name
     if not original_mix.is_file() or original_mix.stat().st_size <= 1024:
         with np.load(stems / (Path(name).stem + ".npz")) as stats:
@@ -54,10 +64,12 @@ def render_scene(name, videos, pictures, stems, output, cues, spec, profiles, ds
                 frame_track, stems / (Path(name).stem + "-dialogue-effects.flac"), stats,
                 cues / (spec["cue"] + ".mp3"), original_mix
             )
-    process_video(frame_track, spec, profiles, dsp, stems, output, cues)
+        if completed:
+            completed()
+    process_video(frame_track, spec, profiles, dsp, stems, output, cues, completed)
 
 
-def generate(game, pack, cache, library, checkpoint, device):
+def generate(game, pack, cache, library, checkpoint, device, remaining_libraries=()):
     source = Path(__file__).resolve().parent
     video_specs = {row["video"]: row for row in table(source / "VideoDynamics.tsv")}
     video_list = table(source / "Videos.tsv")
@@ -94,8 +106,55 @@ def generate(game, pack, cache, library, checkpoint, device):
         device = "cuda" if torch.cuda.is_available() else "cpu"
     processor = torch.cuda.get_device_name() if device == "cuda" else "CPU"
     print(f"Audio separator processor: {processor} ({device}).", flush=True)
+
+    weights = {name: max(1, round(float(probe(videos / name)["format"]["duration"])))
+               for name in sorted(names)}
+    separation_weights = {name: max(seconds, 15) for name, seconds in weights.items()}
+    pending = {video.name for video in pending_stems(videos, stems)}
+    separation_total = sum(separation_weights[name] for name in pending)
+    libraries = tuple(dict.fromkeys((library, *remaining_libraries)))
+    render_total = sum(
+        weights[name] * (int(not ready_file(pictures / name)) +
+                         sum(not ready_file(file) for key in libraries for file in mixes(cache / key, name)))
+        for name in active
+    )
+    print(f"CUTSCENE\tplan\t{separation_total}\t{render_total}\t{device}", flush=True)
+
+    dsp = native(pack / "RomScoreDSP.dll")
+    render_done = 0
+
+    def render_one(name):
+        def report():
+            print(f"CUTSCENE\trender\t{render_done}\t{render_total}\t"
+                  f"Rendering {library} cutscenes · {Path(name).stem}", flush=True)
+
+        def completed():
+            nonlocal render_done
+            render_done += weights[name]
+            report()
+
+        if ready_file(pictures / name) and mixes_ready(output, [name]):
+            return
+        report()
+        render_scene(name, videos, pictures, stems, output, cues, video_specs[name], profiles, dsp, completed)
+
+    sample = min((name for name in active if not mixes_ready(output, [name])),
+                 key=lambda name: (name in pending, weights[name]), default=None)
+    if sample is not None and sample not in pending:
+        render_one(sample)
+
+    separation_done = 0
+    def separation_progress(video, finished):
+        nonlocal separation_done
+        if finished:
+            separation_done += separation_weights[video.name]
+        print(f"CUTSCENE\tseparate\t{separation_done}\t{separation_total}\t"
+              f"Separating dialogue and effects from original music · {video.stem}", flush=True)
+        if finished and video.name == sample and render_done == 0:
+            render_one(sample)
+
     try:
-        separate(videos, stems, checkpoint, device, 4.0, progress)
+        separate(videos, stems, checkpoint, device, 4.0, separation_progress, first=sample)
     except RuntimeError as error:
         if device != "cuda" or not any(word in str(error).lower() for word in ("cuda", "cudnn", "cublas")):
             raise
@@ -104,18 +163,26 @@ def generate(game, pack, cache, library, checkpoint, device):
             raise SystemExit(3) from error
         progress(0, 0, "Graphics processor unavailable. Preparing cutscenes on the CPU.")
         torch.cuda.empty_cache()
-        separate(videos, stems, checkpoint, "cpu", 4.0, progress)
-    dsp = native(pack / "RomScoreDSP.dll")
-    progress(0, len(active), "Mixing cutscenes and effects")
-    for index, name in enumerate(active, 1):
-        render_scene(name, videos, pictures, stems, output, cues, video_specs[name], profiles, dsp)
-        progress(index, len(active), "Mixing cutscenes and effects")
+        print(f"CUTSCENE\tplan\t{separation_total - separation_done}\t{render_total - render_done}\tcpu", flush=True)
+        separation_total -= separation_done
+        render_total -= render_done
+        separation_done = 0
+        render_done = 0
+        separate(videos, stems, checkpoint, "cpu", 4.0, separation_progress, first=sample)
+
+    for name in active:
+        render_one(name)
     if not mixes_ready(output, active):
         raise OSError("The generated cutscene mixes are incomplete.")
     pending = output / ".ready.part"
     pending.write_text("1\n", encoding="utf-8")
     pending.replace(marker)
     progress(len(active), len(active), "Cutscenes are ready")
+
+
+def heartbeat(stopped):
+    while not stopped.wait(15):
+        print("HEARTBEAT", flush=True)
 
 
 if __name__ == "__main__":
@@ -126,5 +193,11 @@ if __name__ == "__main__":
     parser.add_argument("library", choices=("dark-synthwave", "cinematic-sci-fi", "noir-jazz"))
     parser.add_argument("checkpoint", type=Path)
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
+    parser.add_argument("--remaining-libraries", nargs="*", default=())
     args = parser.parse_args()
-    generate(args.game, args.pack, args.cache, args.library, args.checkpoint, args.device)
+    stopped = Event()
+    Thread(target=heartbeat, args=(stopped,), daemon=True).start()
+    try:
+        generate(args.game, args.pack, args.cache, args.library, args.checkpoint, args.device, args.remaining_libraries)
+    finally:
+        stopped.set()

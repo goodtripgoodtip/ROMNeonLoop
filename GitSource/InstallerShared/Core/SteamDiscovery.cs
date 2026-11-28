@@ -43,6 +43,8 @@ internal static class SteamDiscovery
             ? parent : Path.Combine(manual, "steamapps");
         if (ReadManifest(library, appId) is { } installed)
             return await ValidateAsync(spec, installed.Directory, installed.Build, token).ConfigureAwait(false);
+        if (UnlistedGame(spec, library) is { } fallback)
+            return await ValidateAsync(spec, fallback, null, token).ConfigureAwait(false);
 
         return await ValidateAsync(spec, manual, null, token).ConfigureAwait(false);
     }
@@ -64,17 +66,41 @@ internal static class SteamDiscovery
             {
                 if (!Path.IsPathFullyQualified(rawLibrary))
                     continue;
-                string library = Path.GetFullPath(rawLibrary);
-                if (seen.Add(library) && ReadManifest(Path.Combine(library, "steamapps"), appId) is { } match)
+                string library;
+                try { library = Path.GetFullPath(rawLibrary); }
+                catch (Exception error) when (error is IOException or ArgumentException or NotSupportedException) { continue; }
+                if (!seen.Add(library))
+                    continue;
+                string apps = Path.Combine(library, "steamapps");
+                if (ReadManifest(apps, appId) is { } match && Directory.Exists(match.Directory))
+                {
                     yield return match;
+                    continue;
+                }
+                if (UnlistedGame(spec, apps) is { } fallback)
+                    yield return (fallback, null);
             }
         }
+    }
+
+    private static string? UnlistedGame(GameSource spec, string apps)
+    {
+        string? name = spec.SteamInstallDirectoryName;
+        if (string.IsNullOrWhiteSpace(name) || spec.FileHashes.Count == 0)
+            return null;
+        InstallFiles.CheckSegment(name);
+        string folder = Path.Combine(apps, "common", name);
+        return Directory.Exists(folder) ? folder : null;
     }
 
     private static IEnumerable<string?> SteamRoots(string? configured)
     {
         yield return configured;
         yield return ReadRegistry(Registry.CurrentUser, @"Software\Valve\Steam", "SteamPath");
+        string? executable = ReadRegistry(Registry.CurrentUser, @"Software\Valve\Steam", "SteamExe");
+        if (!string.IsNullOrWhiteSpace(executable) && Path.IsPathFullyQualified(executable))
+            yield return Path.GetDirectoryName(executable);
+        yield return ReadRegistry(Registry.LocalMachine, @"SOFTWARE\Valve\Steam", "InstallPath");
         yield return ReadRegistry(Registry.LocalMachine, @"SOFTWARE\WOW6432Node\Valve\Steam", "InstallPath");
         yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam");
     }
@@ -95,7 +121,14 @@ internal static class SteamDiscovery
     private static IEnumerable<string> Libraries(string steam)
     {
         yield return steam;
-        string? text = ReadText(Path.Combine(steam, "steamapps", "libraryfolders.vdf"));
+        foreach (string location in new[] { "steamapps", "config" })
+            foreach (string library in ReadLibraries(Path.Combine(steam, location, "libraryfolders.vdf")))
+                yield return library;
+    }
+
+    private static IEnumerable<string> ReadLibraries(string file)
+    {
+        string? text = ReadText(file);
         if (text is null)
             yield break;
         foreach (Match match in Pair.Matches(text))

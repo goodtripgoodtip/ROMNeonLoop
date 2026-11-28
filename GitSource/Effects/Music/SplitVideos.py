@@ -20,15 +20,19 @@ def rms_track(audio, block):
     padded = np.pad(audio, ((0, count * block - len(audio)), (0, 0)))
     return np.sqrt(np.mean(padded.reshape(count, block, 2) ** 2, axis=(1, 2)))
 
-def separate(videos, staging, checkpoint, device, hop, progress=None):
-    staging.mkdir(parents=True, exist_ok=True)
-    files = sorted(videos.glob("*.webm"), key=lambda p: p.stat().st_size)
-    pending = [video for video in files if not (
+def pending_stems(videos, staging):
+    return [video for video in sorted(videos.glob("*.webm"), key=lambda p: p.stat().st_size) if not (
         (staging / (video.stem + ".npz")).is_file() and
         (staging / (video.stem + "-dialogue-effects.flac")).is_file()
     )]
+
+def separate(videos, staging, checkpoint, device, hop, progress=None, first=None):
+    staging.mkdir(parents=True, exist_ok=True)
+    pending = pending_stems(videos, staging)
     if not pending:
         return
+    if first is not None:
+        pending.sort(key=lambda video: video.name != first)
     with BanditSession("v2-multi", device=device, checkpoint_path=checkpoint,
                        checkpoint_sha256=WEIGHT_SHA256) as session:
         if hop != 1:
@@ -36,9 +40,9 @@ def separate(videos, staging, checkpoint, device, hop, progress=None):
             runtime.handler = StandardTensorChunkedInferenceHandler(
                 chunk_size_seconds=8.0, hop_size_seconds=hop, inference_batch_size=1, fs=RATE
             ).to(runtime.device).eval()
-        for index, video in enumerate(pending, len(files) - len(pending)):
+        for video in pending:
             if progress:
-                progress(index, len(files), "Separating dialogue and music")
+                progress(video, False)
             result = staging / (video.stem + ".npz")
             original = read_audio(video)
             padded = np.pad(original, ((0, max(0, 15 * RATE - len(original))), (0, 0)))
@@ -71,8 +75,8 @@ def separate(videos, staging, checkpoint, device, hop, progress=None):
             tmp.replace(result)
             print(f"{video.name} {len(original) / RATE:.1f}s "
                   f"music:{np.max(music_rms):.4f} speech:{np.max(speech_rms):.4f}", flush=True)
-        if progress:
-            progress(len(files), len(files), "Separated dialogue and music")
+            if progress:
+                progress(video, True)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

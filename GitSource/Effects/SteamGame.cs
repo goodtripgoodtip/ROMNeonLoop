@@ -21,6 +21,7 @@ internal sealed class SteamGame
         {
             DisplayName = "2064: Read Only Memories",
             SteamAppId = 330820,
+            SteamInstallDirectoryName = "Read Only Memories",
             SupportedBuildIds = [seal[0]],
             FileHashes = new Dictionary<string, string>
             {

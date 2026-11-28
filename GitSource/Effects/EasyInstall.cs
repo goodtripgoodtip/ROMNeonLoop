@@ -11,8 +11,16 @@ internal sealed class SetupAssets(ZipArchive package, string effects, bool local
     private readonly string cache = Path.Combine(effects, "bin", "SetupDownloads");
     private readonly InstallReviewAsset[] approved = reviewed.Select(AsReview).ToArray();
     private readonly Dictionary<InstallDownloadPolicy, AssetStore> stores = [];
+    private InstallProgress transfer;
 
-    internal string Get(InstallAsset asset, CancellationToken token)
+    internal string Get(InstallAsset asset, CancellationToken token, InstallProgress observeTransfer = null)
+    {
+        transfer = observeTransfer;
+        try { return Resolve(asset, token); }
+        finally { transfer = null; }
+    }
+
+    private string Resolve(InstallAsset asset, CancellationToken token)
     {
         InstallerAsset item = Describe(asset);
         string cached = AssetStore.CachedPath(cache, item);
@@ -31,7 +39,7 @@ internal sealed class SetupAssets(ZipArchive package, string effects, bool local
                 using (Stream input = entry.Open())
                 using (var output = new FileStream(partial, FileMode.CreateNew))
                     InstallFiles.Transfer(input, output, item.Bytes,
-                        done => progress("Reading " + asset.label + " from the installer", done, item.Bytes), token);
+                        done => Report("Reading " + asset.label + " from the installer", done, item.Bytes), token);
                 if (!Matches(partial, item, token))
                     throw new InvalidDataException(asset.label + " in the offline installer failed verification.");
                 InstallFiles.PublishFile(partial, cached);
@@ -43,8 +51,14 @@ internal sealed class SetupAssets(ZipArchive package, string effects, bool local
             !askEach && approvedDownload ? InstallDownloadPolicy.ApproveReviewed : InstallDownloadPolicy.AskEachTime;
         if (!stores.TryGetValue(policy, out var store))
             stores[policy] = store = new AssetStore(cache, AppContext.BaseDirectory, new Interaction(ask),
-                new InstallerEvents(null, new InlineProgress(progress)), policy, approved);
+                new InstallerEvents(null, new InlineProgress(Report)), policy, approved);
         return store.ResolveAsync(item, token).GetAwaiter().GetResult();
+    }
+
+    private void Report(string label, long done, long total)
+    {
+        progress(label, done, total);
+        transfer?.Invoke(label, done, total);
     }
 
     internal static bool Embedded(ZipArchive package, InstallAsset asset) =>

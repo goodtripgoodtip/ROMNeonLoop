@@ -23,9 +23,9 @@ internal sealed class InstallAsset
             "  " + filename + Environment.NewLine + "  " + url + Environment.NewLine + "  SHA-256 " + sha256;
     }
 
-    internal static InstallAsset[] Read(string path)
+    internal static InstallAsset[] Parse(string text)
     {
-        var assets = JsonSerializer.Deserialize<InstallAsset[]>(File.ReadAllText(path));
+        var assets = JsonSerializer.Deserialize<InstallAsset[]>(text);
         if (assets == null)
             throw new InvalidDataException("The installer download list is missing.");
         foreach (InstallAsset asset in assets)

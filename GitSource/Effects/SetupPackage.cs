@@ -18,7 +18,9 @@ internal sealed class SetupPackage : UserControl
     private readonly Button browse = new() { Text = "Browse…", AutoSize = true };
     private readonly Button install = new() { Text = "Continue", AutoSize = true };
     private readonly Button uninstall = new() { Text = "Uninstall", AutoSize = true, Visible = false };
-    private readonly Func<string, bool, bool, string, Task> onInstalled;
+    private readonly Button cancel = new() { Text = "Cancel", AutoSize = true };
+    private readonly Button back = new() { Text = "Back", AutoSize = true, Visible = false };
+    private readonly Func<string, bool, bool, SteamGame, string, Task> onPrepared;
     private string selectedGameFolder;
     private bool working;
     internal bool Busy => working;
@@ -123,10 +125,13 @@ internal sealed class SetupPackage : UserControl
         return version;
     }
 
-    internal SetupPackage(ZipArchive package, Func<string, bool, bool, string, Task> onInstalled, Action<string> onUninstall)
+    internal SetupPackage(ZipArchive package, Func<string, bool, bool, SteamGame, string, Task> onPrepared, Action<string> onUninstall,
+        string initialFolder = null, Action goBack = null, bool createDesktop = true, bool createStartMenu = true)
     {
         this.package = package;
-        this.onInstalled = onInstalled;
+        this.onPrepared = onPrepared;
+        desktop.Checked = createDesktop;
+        startMenu.Checked = createStartMenu;
         _ = PackageVersion(package);
         Font = new Font("Segoe UI", 11);
         AutoScaleDimensions = new SizeF(96, 96);
@@ -136,7 +141,12 @@ internal sealed class SetupPackage : UserControl
         InstallerTheme.Apply(folder);
         InstallerTheme.Secondary(browse);
         InstallerTheme.Secondary(uninstall);
+        InstallerTheme.Secondary(cancel);
+        InstallerTheme.Secondary(back);
         InstallerTheme.Primary(install);
+        cancel.Click += (_, _) => FindForm()?.Close();
+        back.Visible = goBack != null;
+        back.Click += (_, _) => goBack?.Invoke();
 
         var shell = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2 };
         shell.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
@@ -160,7 +170,7 @@ internal sealed class SetupPackage : UserControl
         AddWide(layout, divider, 2);
         AddWide(layout, location, 3);
         folder.AccessibleName = "NeonLoop installation folder";
-        folder.Text = ManagedInstall.FindInstalled() ?? ManagedInstall.DefaultFolder;
+        folder.Text = initialFolder ?? ManagedInstall.FindInstalled() ?? ManagedInstall.DefaultFolder;
         folder.Margin = Padding.Empty;
         var field = new Panel { Height = 42, Dock = DockStyle.Fill, Padding = new Padding(1),
             Margin = new Padding(0, 0, 10, 0), BackColor = InstallerTheme.Divider };
@@ -188,24 +198,41 @@ internal sealed class SetupPackage : UserControl
         status.Margin = new Padding(0, 10, 0, 3);
         AddWide(layout, status, 8);
         AddWide(layout, progress, 9);
-        var locate = new LinkLabel { Text = "Find the Steam game…", AutoSize = true, Visible = false };
+        var locate = new LinkLabel { Text = "Choose Steam game folder…", AutoSize = true };
         InstallerTheme.Apply(locate);
         AddWide(layout, locate, 10);
         install.MinimumSize = new Size(144, 46);
         install.Margin = Padding.Empty;
-        var actions = new TableLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, ColumnCount = 3,
+        var actions = new TableLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, ColumnCount = 5, RowCount = 2,
             Padding = new Padding(54, 12, 54, 34), Margin = Padding.Empty };
         actions.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        actions.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-        actions.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-        var requirement = new Label { Text = "Requires 2064: Read Only Memories on Steam.", AutoSize = true,
+        for (int i = 1; i < actions.ColumnCount; i++)
+            actions.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        var requirement = new Label { Text = "Requires 2064: Read Only Memories on Steam. The default folder works without administrator access.", AutoSize = true,
             ForeColor = InstallerTheme.MutedText, Anchor = AnchorStyles.Left, Margin = Padding.Empty };
         actions.Controls.Add(requirement, 0, 0);
-        actions.Controls.Add(uninstall, 1, 0);
-        actions.Controls.Add(install, 2, 0);
+        actions.SetColumnSpan(requirement, actions.ColumnCount);
+        actions.Controls.Add(back, 1, 1);
+        actions.Controls.Add(cancel, 2, 1);
+        actions.Controls.Add(uninstall, 3, 1);
+        actions.Controls.Add(install, 4, 1);
         shell.Controls.Add(actions, 0, 1);
         void ChooseLocation(string current, Action<string> accept, bool allowNew)
         {
+            if (working)
+                return;
+            try
+            {
+                string selection = InstallerPathPicker.Browse(FindForm(), current, folders: true, allowNew: allowNew);
+                if (selection != null)
+                    accept(selection);
+                return;
+            }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException or
+                Win32Exception or System.Runtime.InteropServices.COMException)
+            {
+                status.Text = "Windows couldn’t open the folder picker. Enter a full path instead.";
+            }
             layout.Hide();
             actions.Hide();
             InstallerPathPicker picker = null;
@@ -228,7 +255,6 @@ internal sealed class SetupPackage : UserControl
         }, false);
         install.Click += async (_, _) =>
         {
-            locate.Visible = false;
             await InstallAsync(() => locate.Visible = true);
         };
         uninstall.Click += (_, _) =>
@@ -245,13 +271,16 @@ internal sealed class SetupPackage : UserControl
         {
             (title, 56, FontStyle.Bold), (this, InstallerWindow.BodyPixels, FontStyle.Regular),
             (location, InstallerWindow.BodyPixels, FontStyle.Bold), (browse, InstallerWindow.BodyPixels, FontStyle.Bold),
-            (install, InstallerWindow.BodyPixels, FontStyle.Bold), (uninstall, InstallerWindow.BodyPixels, FontStyle.Bold)
+            (install, InstallerWindow.BodyPixels, FontStyle.Bold), (uninstall, InstallerWindow.BodyPixels, FontStyle.Bold),
+            (cancel, InstallerWindow.BodyPixels, FontStyle.Regular), (back, InstallerWindow.BodyPixels, FontStyle.Regular)
         };
         var scaledFonts = new List<Font>();
         float previousScale = 0;
         void FitContent()
         {
             float scale = Math.Clamp(MathF.Min(ClientSize.Width / 1020f, ClientSize.Height / 570f), 0.88f, 2.4f);
+            int available = Math.Max(200, ClientSize.Width - (int)MathF.Round(114 * scale));
+            status.MaximumSize = requirement.MaximumSize = new Size(available, 0);
             if (Math.Abs(previousScale - scale) < 0.04f)
                 return;
             previousScale = scale;
@@ -280,7 +309,6 @@ internal sealed class SetupPackage : UserControl
             install.MinimumSize = new Size(Px(144), Px(47));
             uninstall.MinimumSize = new Size(Px(130), Px(47));
             uninstall.Margin = new Padding(0, 0, Px(10), 0);
-            status.MaximumSize = new Size(Math.Max(Px(200), ClientSize.Width - layout.Padding.Horizontal - Px(12)), 0);
             ResumeLayout(true);
         }
         Resize += (_, _) => FitContent();
@@ -315,41 +343,32 @@ internal sealed class SetupPackage : UserControl
     private async Task InstallAsync(Action offerGamePicker)
     {
         working = true;
-        install.Enabled = uninstall.Enabled = browse.Enabled = folder.Enabled = desktop.Enabled = startMenu.Enabled = false;
-        status.Text = "Getting NeonLoop ready…";
+        install.Enabled = uninstall.Enabled = browse.Enabled = folder.Enabled = desktop.Enabled = startMenu.Enabled =
+            back.Enabled = cancel.Enabled = false;
+        status.Text = "Looking for 2064: Read Only Memories in Steam…";
         status.Visible = true;
+        progress.Style = ProgressBarStyle.Marquee;
         progress.Visible = true;
         try
         {
             string destination = ManagedInstall.Validate(folder.Text.Trim());
             string previous = ManagedInstall.ReadVersion(destination);
-            if (previous != null && !ManagedInstall.IsManaged(destination))
-                throw new IOException("This older installation is still available. Choose a different folder for the new version.");
-            string steamFolder;
+            if (previous == null && ManagedInstall.IsProtectedLocation(destination))
+                throw new IOException("Choose a folder you can write to without administrator access. NeonLoop saves its game data and settings there.");
+            ValidateExisting(destination, previous);
+            SteamGame game;
             try
             {
-                steamFolder = await Task.Run(() => VerifySteam(package, selectedGameFolder).Installed);
+                string saved = previous != null ? SteamGame.SelectedFolder(Path.Combine(ManagedInstall.RuntimeFolder(destination), "Effects")) : null;
+                game = await Task.Run(() => VerifySteam(package, selectedGameFolder, saved));
             }
             catch (Exception error) when (error is IOException or InvalidDataException or UnauthorizedAccessException)
             {
                 offerGamePicker();
                 throw;
             }
-            var report = new Progress<int>(value => { if (working) progress.Value = value; });
-            try
-            {
-                await Task.Run(() => Extract(package, destination, previous, report));
-            }
-            catch (UnauthorizedAccessException) when (ManagedInstall.CanElevate(destination))
-            {
-                status.Text = "Approve Windows’ prompt to copy NeonLoop here.";
-                progress.Style = ProgressBarStyle.Marquee;
-                int result = await Task.Run(() => ManagedInstall.RunProcess(Environment.ProcessPath!, true,
-                    ManagedInstall.CopyArgument, destination, previous ?? ""));
-                if (result != 0)
-                    throw new IOException("The NeonLoop files couldn’t be copied. Choose another location or try again.");
-            }
-            await onInstalled(destination, desktop.Checked, startMenu.Checked, steamFolder);
+            ManagedInstall.ReviewRuntime(destination, game.Installed);
+            await onPrepared(destination, desktop.Checked, startMenu.Checked, game, previous);
         }
         catch (Win32Exception error) when (ManagedInstall.WasDeclined(error))
         {
@@ -366,19 +385,31 @@ internal sealed class SetupPackage : UserControl
             working = false;
             if (!IsDisposed)
             {
-                install.Enabled = uninstall.Enabled = browse.Enabled = folder.Enabled = desktop.Enabled = startMenu.Enabled = true;
+                install.Enabled = uninstall.Enabled = browse.Enabled = folder.Enabled = desktop.Enabled = startMenu.Enabled =
+                    back.Enabled = cancel.Enabled = true;
                 progress.Visible = false;
                 progress.Style = ProgressBarStyle.Blocks;
             }
         }
     }
 
-    private static SteamGame VerifySteam(ZipArchive package, string selected)
+    internal static string ReadEntry(ZipArchive package, string name)
     {
-        using var reader = new StreamReader((package.GetEntry("Effects/bin/MusicPack/Ready.txt") ??
-            throw new InvalidDataException("The installer is missing Steam build information.")).Open());
-        string[] seal = reader.ReadToEnd().Split('\n', StringSplitOptions.RemoveEmptyEntries)
+        var entry = package.GetEntry("Effects/" + name)
+            ?? throw new InvalidDataException("The installer is missing " + name + ".");
+        using var reader = new StreamReader(entry.Open());
+        return reader.ReadToEnd();
+    }
+
+    internal static SteamGame VerifySteam(ZipArchive package, string selected, string saved = null)
+    {
+        string[] seal = ReadEntry(package, "bin/MusicPack/Ready.txt").Split('\n', StringSplitOptions.RemoveEmptyEntries)
             .Select(line => line.Trim()).ToArray();
+        if (selected == null && !string.IsNullOrWhiteSpace(saved))
+        {
+            try { return SteamGame.FindSupported(seal, saved); }
+            catch (Exception error) when (error is IOException or InvalidDataException or UnauthorizedAccessException or ArgumentException) { }
+        }
         return SteamGame.FindSupported(seal, selected);
     }
 
@@ -443,7 +474,10 @@ internal sealed class SetupPackage : UserControl
             }
             if (!File.Exists(Path.Combine(staging, ManagedInstall.Launcher)))
                 throw new InvalidDataException("The setup download is missing the NeonLoop launcher.");
-            var preserved = previous == null ? [] : PreserveLocalFiles(destination, staging);
+            bool hasData = previous != null && ManagedInstall.HasCentralRuntime(destination);
+            string centralData = Path.Combine(destination, "Data");
+            string backedUpData = Path.Combine(backup, "Data");
+            var preserved = previous == null ? [] : PreserveLocalFiles(destination, staging, hasData ? centralData : null);
             File.WriteAllLines(Path.Combine(staging, ManagedInstall.OwnedFiles), owned);
             ValidateExisting(destination, previous);
             if (previous != null)
@@ -453,9 +487,13 @@ internal sealed class SetupPackage : UserControl
             try
             {
                 Directory.Move(staging, destination);
+                if (hasData)
+                    Directory.Move(backedUpData, centralData);
             }
             catch
             {
+                if (Directory.Exists(destination) && !Directory.Exists(staging))
+                    Directory.Move(destination, staging);
                 if (Directory.Exists(backup) && !Directory.Exists(destination))
                     Directory.Move(backup, destination);
                 throw;
@@ -494,12 +532,12 @@ internal sealed class SetupPackage : UserControl
         }
     }
 
-    private static string[] PreserveLocalFiles(string destination, string staging)
+    private static string[] PreserveLocalFiles(string destination, string staging, string data)
     {
         var owned = new HashSet<string>(ManagedInstall.ReadOwnedFiles(destination), StringComparer.OrdinalIgnoreCase);
         owned.Add(Path.Combine(destination, ManagedInstall.OwnedFiles));
         var preserved = new List<string>();
-        foreach (var item in GameInstaller.InstallFiles.Tree(destination, CancellationToken.None))
+        foreach (var item in GameInstaller.InstallFiles.Tree(destination, CancellationToken.None, exclude: data))
         {
             if (item.Directory || owned.Contains(item.Path))
                 continue;

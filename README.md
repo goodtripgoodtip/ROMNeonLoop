@@ -2,7 +2,7 @@
 
 A free Windows mod for **2064: Read Only Memories** on Steam. Change the look, make the text easier to read, and choose a different soundtrack while you play.
 
-**[Download NeonLoop Setup](https://github.com/goodtripgoodtip/ROMNeonLoop/releases/download/v0.6.7/NeonLoop-Setup.exe)** · [Optional music packs](https://github.com/goodtripgoodtip/ROMNeonLoop/releases/tag/v0.6.7)
+**[Download NeonLoop Setup](https://github.com/goodtripgoodtip/ROMNeonLoop/releases/download/v0.6.8/NeonLoop-Setup.exe)** · [Optional music packs](https://github.com/goodtripgoodtip/ROMNeonLoop/releases/tag/v0.6.8)
 
 ![NeonLoop presents the apartment with vivid magenta lighting.](Screenshots/Showcase-NeonLoop.png)
 
@@ -60,15 +60,16 @@ These are real game captures. Each row shows one filter by itself at 25% and 100
 
 Easy Install preselects Dark Synthwave. Clear that selection to keep the original music. To add a downloaded music pack later, leave it zipped and choose **Get music packs → Add a downloaded pack** in the launcher.
 
-- [Dark Synthwave](https://github.com/goodtripgoodtip/ROMNeonLoop/releases/download/v0.6.7/neonloop_dark_synthwave.zip) · Karl Casey @ [White Bat Audio](https://whitebataudio.com/)
-- [Cinematic Sci-Fi](https://github.com/goodtripgoodtip/ROMNeonLoop/releases/download/v0.6.7/neonloop_cinematic_sci_fi.zip) · [Scott Buckley](https://www.scottbuckley.com.au/library/)
-- [Noir Jazz](https://github.com/goodtripgoodtip/ROMNeonLoop/releases/download/v0.6.7/neonloop_noir_jazz.zip) · Kevin MacLeod, [Incompetech music catalog](https://www.incompetech.com/music/royalty-free/music.html)
+- [Dark Synthwave](https://github.com/goodtripgoodtip/ROMNeonLoop/releases/download/v0.6.8/neonloop_dark_synthwave.zip) · Karl Casey @ [White Bat Audio](https://whitebataudio.com/)
+- [Cinematic Sci-Fi](https://github.com/goodtripgoodtip/ROMNeonLoop/releases/download/v0.6.8/neonloop_cinematic_sci_fi.zip) · [Scott Buckley](https://www.scottbuckley.com.au/library/)
+- [Noir Jazz](https://github.com/goodtripgoodtip/ROMNeonLoop/releases/download/v0.6.8/neonloop_noir_jazz.zip) · Kevin MacLeod, [Incompetech music catalog](https://www.incompetech.com/music/royalty-free/music.html)
 
 Select a soundtrack in **F10 → Music**. Setup can also remix cutscenes using your Steam copy. That takes longer and can resume if interrupted.
 
 - If setup can’t find the game, use **Manage → Browse local files** in Steam to find the folder, then choose it in NeonLoop’s **Find game** screen.
-- To repair or uninstall NeonLoop, use **Setup options** in the launcher. Your Steam copy and saves stay in place.
-- Windows may flag the unsigned installer as unfamiliar. Use the official release link. [SHA-256 checksums](https://github.com/goodtripgoodtip/ROMNeonLoop/releases/download/v0.6.7/SHA256SUMS.txt)
+- **Manage downloads and tools** in Setup options shows which setup files you can remove to free space. For new installs, those files and the private game copy are in the **Data** folder inside NeonLoop.
+- Run **Uninstall NeonLoop** from the install folder or use **Setup options** in the launcher. Your Steam copy and saves stay in place.
+- Windows may flag the unsigned installer as unfamiliar. Use the official release link. [SHA-256 checksums](https://github.com/goodtripgoodtip/ROMNeonLoop/releases/download/v0.6.8/SHA256SUMS.txt)
 
 </details>
 
