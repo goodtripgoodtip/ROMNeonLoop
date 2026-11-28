@@ -15,6 +15,7 @@ internal sealed class InstallSession
     private readonly long gameBytes;
     private readonly string[] videoNames;
     private readonly string[] sourceVideos;
+    private readonly string destinationEffects;
     private static readonly string[] VideoVariants = { "Videos", "DynamicVideos/effects", "DynamicVideos/pitch-high",
         "DynamicVideos/pitch-low", "DynamicVideos/both-high", "DynamicVideos/both-low" };
 
@@ -40,31 +41,38 @@ internal sealed class InstallSession
     internal bool HasIncompleteSelection => Request != null &&
         (Request.Libraries.Any(key => !Pack.HasLibrary(key)) || Request.Movies.Any(key => !MovieReady(key)));
     internal bool CanPlay => Ready && (!HasIncompleteSelection || Request.AllowLimited);
+    internal bool CanPlayDuringConversion => Ready &&
+        (Request == null || Request.Libraries.All(Pack.HasLibrary));
     internal string Results { get { return string.Join(Environment.NewLine, results); } }
     internal InstallAsset[] MusicAssets { get; }
     internal string[] InstalledLibraries => MusicPack.Libraries.Where(Pack.HasLibrary).ToArray();
 
-    internal InstallSession(string effects, string selectedFolder, InstallProgress progress, CancellationToken token)
+    internal InstallSession(string effects, string selectedFolder, InstallProgress progress, CancellationToken token,
+        ZipArchive preview = null, SteamGame verifiedGame = null, string destinationEffects = null)
     {
         Effects = effects;
+        this.destinationEffects = destinationEffects ?? effects;
         progress("Checking for an open game, then reading the Steam registry and library manifests.", 0, 0);
         EffectsLauncher.CheckNoGame();
-        Steam = SteamGame.Find(effects, selectedFolder, token);
+        Steam = verifiedGame ?? SteamGame.Find(effects, selectedFolder, token);
         GameInstaller.InstallFiles.RequireSeparate(Steam.Installed, Path.GetDirectoryName(effects)!);
         token.ThrowIfCancellationRequested();
         progress("Validating the installed Steam build and reading NeonLoop's local manifests.", 0, 0);
-        Pack = new MusicPack(effects, Steam);
+        string Read(string name) => preview == null ? File.ReadAllText(Path.Combine(effects, name)) : SetupPackage.ReadEntry(preview, name);
+        string[] Lines(string name) => Read(name).ReplaceLineEndings("\n").TrimEnd('\n').Split('\n');
+        Pack = preview == null ? new MusicPack(effects, Steam) :
+            new MusicPack(effects, Steam, Lines("bin/MusicPack/Ready.txt"), Lines("bin/MusicPack/Cues.tsv"));
         GameFolder = Path.Combine(effects, "bin", "Game", Steam.BuildId);
         Cutscenes = Path.Combine(effects, "bin", "Cutscenes", Steam.BuildId);
         Tools = Path.Combine(effects, "bin", "CutsceneTools");
-        MusicAssets = InstallAsset.Read(Path.Combine(effects, "CutsceneSetup", "ReleaseAssets.json"));
+        MusicAssets = InstallAsset.Parse(Read("CutsceneSetup/ReleaseAssets.json"));
         if (MusicAssets.Select(asset => asset.key).Distinct().Count() != MusicAssets.Length ||
             MusicAssets.Select(asset => asset.filename).Distinct(StringComparer.OrdinalIgnoreCase).Count() != MusicAssets.Length ||
             MusicAssets.Any(asset => !MusicPack.Libraries.Contains(asset.key) || asset.expandedBytes <= 0 ||
                 !InstallAssets.IsMusicDownload(asset)))
             throw new InvalidDataException("The soundtrack release manifest does not match the supported libraries.");
-        toolsManifest = InstallAsset.Read(Path.Combine(effects, "CutsceneSetup", "DownloadAssets.json"));
-        var videoRows = File.ReadLines(Path.Combine(effects, "CutsceneSetup", "Videos.tsv")).Skip(1)
+        toolsManifest = InstallAsset.Parse(Read("CutsceneSetup/DownloadAssets.json"));
+        var videoRows = Lines("CutsceneSetup/Videos.tsv").Skip(1)
             .Select(line => line.Split('\t')).Where(fields => fields.Length > 1).ToArray();
         sourceVideos = videoRows.Select(fields => fields[0]).ToArray();
         videoNames = videoRows.Where(fields => fields[1] == "rescored").Select(fields => fields[0]).ToArray();
@@ -81,7 +89,7 @@ internal sealed class InstallSession
         if (gameBytes == 0 || !gameFiles.Any(file => string.Equals(file.FullName, Path.Combine(Steam.Installed, "ROM.exe"),
             StringComparison.OrdinalIgnoreCase)))
             throw new IOException("The Steam game folder could not be read as a normal installation directory.");
-        Ready = CurrentCopy && NetworkPrivacy.ReadChoice(effects) != null &&
+        Ready = preview == null && CurrentCopy && NetworkPrivacy.ReadChoice(effects) != null &&
             File.Exists(Path.Combine(GameFolder, "dxgi.dll")) &&
             Pack.IsStaged(GameFolder);
     }
@@ -141,16 +149,25 @@ internal sealed class InstallSession
         }
     }
 
+    private bool conversionInterrupted;
+
+    internal bool HasUnfinishedCutscenes => conversionInterrupted ||
+        MusicPack.Libraries.Any(key => Directory.Exists(Path.Combine(Cutscenes, key)) && !MovieReady(key));
+
     internal string Review(CancellationToken token)
     {
         var text = new StringBuilder();
         text.AppendLine("1. Prepare the private game copy");
         text.AppendLine("  Steam source (read only): " + Steam.Installed);
-        text.AppendLine("  Target: " + GameFolder);
+        text.AppendLine("  Target: " + Path.Combine(destinationEffects, "bin", "Game", Steam.BuildId));
         text.AppendLine(CurrentCopy ? "  Reuse the private game copy and stage the current mod files." :
             "  Stage " + InstallFiles.Size(gameBytes) + " from the installed game before activating the copy.");
         text.AppendLine("  Copy the overlay, settings, shaders, textures and audio helper. Patch the private game assembly locally.");
-        text.AppendLine("  Available on the destination drive: " + InstallFiles.Size(InstallFiles.Free(Effects)));
+        text.AppendLine("  Available on the destination drive: " + InstallFiles.Size(InstallFiles.Free(destinationEffects)));
+        text.AppendLine("  Downloads: " + Path.Combine(destinationEffects, "bin", "SetupDownloads"));
+        text.AppendLine("  Optional conversion tools and model cache: " + Path.Combine(destinationEffects, "bin", "CutsceneTools"));
+        if (!Path.GetDirectoryName(Effects)!.Equals(Path.GetDirectoryName(destinationEffects), StringComparison.OrdinalIgnoreCase))
+            text.AppendLine("  Bring existing NeonLoop data into the selected install folder from " + Path.GetDirectoryName(Effects));
         text.AppendLine();
         text.AppendLine("2. Game network privacy");
         if (Easy)
@@ -159,24 +176,26 @@ internal sealed class InstallSession
         {
             text.AppendLine(Network == "block" ? "  " + NetworkPrivacy.BlockSummary :
                 "  Keep normal network access. Remove NeonLoop's private-copy firewall rules if present, with administrator approval if needed.");
-            text.AppendLine("  Save your choice in " + Path.Combine(Effects, "NetworkChoice.txt"));
+            text.AppendLine("  Save your choice in " + Path.Combine(destinationEffects, "NetworkChoice.txt"));
         }
         text.AppendLine();
-        text.AppendLine("3. Install selected soundtracks and prepare replacement cutscenes");
+        text.AppendLine("3. Install selected soundtrack packs");
         foreach (var asset in MusicAssets.Where(asset => Request?.Libraries.Contains(asset.key) == true))
             text.AppendLine("  " + asset.label + (Pack.HasLibrary(asset.key) ? " (already installed)" : " · " + InstallFiles.Size(asset.bytes)));
+        text.AppendLine();
+        text.AppendLine("4. Optional cutscene conversion");
         if (Movies.Length == 0)
-            text.AppendLine("  Skipped by your selection. The game can use original cutscenes.");
+            text.AppendLine("  Leave cutscene audio as it is. Selected soundtrack packs still replace music during gameplay.");
         else
         {
             foreach (string library in Movies)
                 text.AppendLine("  " + MusicPack.Name(library) + (MovieReady(library) ? " (already prepared)" : ""));
             if (NeedsMovieWork)
             {
-                text.AppendLine("  Read original Steam videos, extract verified tools and install Python packages offline in " + Tools);
-                text.AppendLine("  Generate dialogue, picture and soundtrack mixes locally in " + Cutscenes + ".");
-                text.AppendLine("  Use " + (AllowHardwareCheck ? "NVIDIA CUDA if the local compatibility check passes, with CPU fallback." : "CPU.") +
-                    " Keep at least 2 GiB free for cutscene generation after tools are available. Actual output size varies.");
+                text.AppendLine("  Python and uv set up local tools. PyTorch and the Bandit model separate dialogue and effects from the original music.");
+                text.AppendLine("  FFmpeg and NeonLoop render cutscene variants with the chosen soundtrack, pitch and audio effects.");
+                text.AppendLine("  Processing happens on this PC. Tools: " + Tools + ". Output: " + Cutscenes + ".");
+                text.AppendLine("  " + ProcessorSummary + " Keep at least 2 GiB free after tools are available. Actual output size varies.");
                 var requested = ToolsFor(InstallHardware.Cpu).ToArray();
                 text.AppendLine("  Maximum planned cutscene downloads before reuse or retries: " + InstallFiles.Size(requested.Sum(asset => asset.bytes)));
                 text.AppendLine("  Tool and model download cache: " + Path.Combine(Tools, "Downloads"));
@@ -194,7 +213,7 @@ internal sealed class InstallSession
         text.AppendLine(IsOfflinePackage || LocalOnly ? "Setup uses embedded and verified local files." :
             Easy ? "Install approves the listed downloads. NVIDIA downloads require a separate choice." :
             "Setup asks for missing downloads in Custom mode.");
-        text.AppendLine("Setup records local progress in " + Path.Combine(Effects, "Install.log") + ".");
+        text.AppendLine("Setup records local progress in " + Path.Combine(destinationEffects, "Install.log") + ".");
         text.AppendLine("At the end, choose Play Now to start Steam if needed and open the private game, or close the installer.");
         return text.ToString();
     }
@@ -205,41 +224,44 @@ internal sealed class InstallSession
     internal InstallAsset[] DownloadsNeeded(IEnumerable<InstallAsset> assets) => assets.Where(asset =>
         !SetupAssets.Embedded(Package, asset) && !SetupAssets.HasCandidate(Effects, asset)).ToArray();
 
+    internal const string CutscenePurpose = "Soundtrack packs replace music during gameplay. Optional conversion also replaces music in cutscenes while keeping dialogue and sound effects.";
+    internal const string CpuDecision = "Convert cutscenes on the CPU?";
+    internal const string CpuWarning = "CPU conversion can take several hours and may slow the game. Once it starts, you can play while setup keeps working or skip unfinished conversion at any time. Your soundtrack plays during gameplay. Cutscenes use their original audio until that soundtrack’s conversion is ready.";
+    internal string ProcessorSummary => AllowHardwareCheck
+        ? "Setup checks for a compatible NVIDIA GPU. If NVIDIA is unavailable, declined or fails, conversion uses the CPU. CPU conversion can take several hours."
+        : "Conversion uses your CPU and can take several hours, especially for multiple soundtracks.";
+
+    internal string DownloadPurpose(string filename)
+    {
+        if (MusicAssets.FirstOrDefault(asset => asset.filename == filename) is { } soundtrack)
+            return soundtrack.label + " adds a selectable soundtrack for gameplay.";
+        var tool = toolsManifest.FirstOrDefault(asset => asset.filename == filename);
+        return tool?.label switch
+        {
+            "Bandit cutscene model" => "The Bandit model separates dialogue and sound effects from the original cutscene music on this PC.",
+            "FFmpeg video tools" => "FFmpeg reads the Steam cutscene videos and writes the replacement clips.",
+            "uv setup tool" or "Python 3.12.13" => tool.label + " sets up the private environment for cutscene conversion.",
+            "PyTorch (CPU)" => "This PyTorch package runs the cutscene audio separator on the CPU.",
+            "PyTorch (NVIDIA GPU)" => "This PyTorch package runs the cutscene audio separator on a compatible NVIDIA GPU.",
+            _ => tool == null ? "" : tool.label + " supports the local cutscene audio tools."
+        };
+    }
+
     internal void Run(Action<string, string, int, int> step, InstallProgress progress,
-        Func<GameInstaller.DownloadQuestion, GameInstaller.DownloadDecision> ask,
-        Func<string, string, bool> approve, CancellationToken token)
+        Func<GameInstaller.DownloadQuestion, CancellationToken, GameInstaller.DownloadDecision> ask,
+        Func<string, string, CancellationToken, bool> approve, Action<CutsceneUpdate> timing,
+        CancellationToken token, CancellationToken cutsceneToken)
     {
         results.Clear();
         EffectsLauncher.CheckNoGame();
         var reviewed = ReviewedAssets();
         var approved = ApprovedDownloads.ToList();
-        if (Easy && Request != null)
+        if (Request != null)
             Request.Save(Effects);
-        long selectedArchives = reviewed.Where(asset => !SetupAssets.HasCandidate(Effects, asset)).Sum(asset => asset.bytes);
-        long space = (Ready ? 0 : gameBytes) + selectedArchives +
-            reviewed.Sum(asset => asset.expandedBytes) + (NeedsMovieWork ? CutsceneReserve * (1 + Movies.Length) : 0);
-        InstallFiles.EnsureSpace(Effects, space, "prepare the selected installation");
-        if (Backend == InstallHardware.Gpu && NeedsMovieWork)
-        {
-            var gpu = ToolsFor(InstallHardware.Gpu).Where(asset => asset.group == InstallHardware.Gpu).ToArray();
-            InstallAsset[] needed = DownloadsNeeded(gpu);
-            long download = needed.Sum(asset => asset.bytes);
-            bool enoughSpace = InstallFiles.Free(Effects) >= space + gpu.Sum(asset => asset.bytes) * 2;
-            string prompt = download == 0 ? "Use the verified NVIDIA tools already available on this PC?" :
-                $"Download {InstallFiles.Size(download)} for NVIDIA processing? CPU processing is available without this download.";
-            if (enoughSpace && approve("Use NVIDIA acceleration?", prompt))
-                approved.AddRange(needed);
-            else
-            {
-                if (!enoughSpace)
-                    progress("Not enough space for the NVIDIA tools. Using the reviewed CPU path.", -1, -1);
-                Backend = InstallHardware.Cpu;
-            }
-        }
+        long baseSpace = (Ready ? 0 : gameBytes) + RequiredAssetSpace(reviewed.Where(asset => asset.key != null));
+        InstallFiles.EnsureSpace(Effects, baseSpace, "prepare the game and selected soundtracks");
         bool offline = Request?.Offline == true || IsOfflinePackage;
-        var assets = new SetupAssets(Package, Effects, LocalOnly || offline, !Easy, approved, ask, progress);
-        var gpuAssets = offline && Backend == InstallHardware.Gpu
-            ? new SetupAssets(Package, Effects, false, false, approved, ask, progress) : assets;
+        var assets = new SetupAssets(Package, Effects, LocalOnly || offline, !Easy, approved, question => ask(question, token), progress);
         InstallFiles.WriteText(Path.Combine(Effects, "GameSource.txt"), Steam.Installed);
         var stages = new List<KeyValuePair<string, Action>>();
         stages.Add(new KeyValuePair<string, Action>("Getting the game ready…", () => PrepareCopy(progress, token)));
@@ -266,11 +288,65 @@ internal sealed class InstallSession
             var asset = soundtrack;
             stages.Add(new KeyValuePair<string, Action>(asset.label, () => InstallPack(assets.Get(asset, token), progress, token)));
         }
+        if (Request != null)
+            stages.Add(new("Activating your soundtrack…", () => SelectSoundtrack(preserve: true)));
+        bool cutscenesSkipped = false;
+        bool cpuApproved = false;
+        SetupAssets movieAssets = null;
+        SetupAssets gpuAssets = null;
+        var selectedMovies = Movies.Where(key => !MovieReady(key)).ToArray();
+        bool ApproveCpu()
+        {
+            if (cpuApproved)
+                return true;
+            long bytes = DownloadsNeeded(ToolsFor(InstallHardware.Cpu)).Sum(asset => asset.bytes);
+            string download = bytes > 0 && !LocalOnly && !offline
+                ? " Setup may still need up to " + InstallFiles.Size(bytes) + " for the CPU tools."
+                : "";
+            cpuApproved = approve(CpuDecision, CpuWarning + download, cutsceneToken);
+            if (cpuApproved)
+                InstallFiles.EnsureSpace(Effects, MovieSpace(InstallHardware.Cpu), "prepare CPU cutscenes");
+            return cpuApproved;
+        }
+        if (selectedMovies.Length > 0)
+            stages.Add(new("Choose cutscene processing", () =>
+            {
+                if (cutsceneToken.IsCancellationRequested)
+                    return;
+                try
+                {
+                    Backend = ChooseMovieBackend(approve, approved, progress, cutsceneToken);
+                    cutscenesSkipped = Backend == InstallHardware.Cpu && !ApproveCpu();
+                    if (cutscenesSkipped)
+                        return;
+                    movieAssets = new SetupAssets(Package, Effects, LocalOnly || offline, !Easy, approved,
+                        question => ask(question, cutsceneToken), progress);
+                    gpuAssets = offline && Backend == InstallHardware.Gpu
+                        ? new SetupAssets(Package, Effects, false, false, approved, question => ask(question, cutsceneToken), progress) : movieAssets;
+                }
+                catch (OperationCanceledException) when (cutsceneToken.IsCancellationRequested && !token.IsCancellationRequested)
+                {
+                    cutscenesSkipped = true;
+                }
+            }));
         foreach (string library in Movies)
         {
             string key = library;
             stages.Add(new KeyValuePair<string, Action>(MusicPack.Name(key) + " cutscenes",
-                () => PrepareMovies(key, assets, gpuAssets, progress, token)));
+                () =>
+                {
+                    if (cutscenesSkipped || cutsceneToken.IsCancellationRequested)
+                    {
+                        token.ThrowIfCancellationRequested();
+                        cutscenesSkipped = true;
+                        return;
+                    }
+                    try { cutscenesSkipped = !PrepareMovies(key, movieAssets, gpuAssets, progress, timing, ApproveCpu, cutsceneToken); }
+                    catch (OperationCanceledException) when (cutsceneToken.IsCancellationRequested && !token.IsCancellationRequested)
+                    {
+                        cutscenesSkipped = true;
+                    }
+                }));
         }
         for (int i = 0; i < stages.Count; ++i)
         {
@@ -278,14 +354,49 @@ internal sealed class InstallSession
             step(stages[i].Key, i + 1 < stages.Count ? stages[i + 1].Key : "Review the result", i, stages.Count);
             stages[i].Value();
         }
+        if (cutscenesSkipped)
+        {
+            conversionInterrupted = true;
+            if (Request != null)
+            {
+                Request = Request with { Movies = Request.Movies.Where(key => !Movies.Contains(key) || MovieReady(key)).ToArray() };
+                Request.Save(Effects);
+            }
+            ResultsLine("Skipped unfinished cutscene conversion. Installed soundtracks and completed cutscenes are kept.", progress);
+        }
         foreach (string key in MusicPack.Libraries)
             if (Pack.HasLibrary(key))
                 ResultsLine("Available soundtrack: " + MusicPack.Name(key), progress);
         if (Easy && HasIncompleteSelection)
             throw new IOException("Some selected soundtracks or cutscenes still need setup.");
-        if (Easy && Request != null)
-            SelectSoundtrack(preserve: true);
-        step("Installation complete", "Play Now or Close", stages.Count, stages.Count);
+        step("Installation complete", "Review setup storage", stages.Count, stages.Count);
+    }
+
+    private long RequiredAssetSpace(IEnumerable<InstallAsset> assets) => assets.Sum(asset =>
+        asset.expandedBytes + (SetupAssets.HasCandidate(Effects, asset) ? 0 : asset.bytes));
+
+    private long MovieSpace(string backend) => RequiredAssetSpace(ToolsFor(backend)) + CutsceneReserve * (1 + Movies.Length);
+
+    private string ChooseMovieBackend(Func<string, string, CancellationToken, bool> approve,
+        List<InstallAsset> approved, InstallProgress progress, CancellationToken token)
+    {
+        string backend = InstallHardware.Choose(AllowHardwareCheck, progress, token);
+        if (backend != InstallHardware.Gpu)
+            return InstallHardware.Cpu;
+        var gpu = ToolsFor(backend).Where(asset => asset.group == backend).ToArray();
+        if (InstallFiles.Free(Effects) < MovieSpace(backend) + gpu.Sum(asset => asset.bytes))
+        {
+            progress("There isn’t enough room for the NVIDIA tools. Setup can offer CPU conversion.", 0, 0);
+            return InstallHardware.Cpu;
+        }
+        InstallAsset[] needed = DownloadsNeeded(gpu);
+        long download = needed.Sum(asset => asset.bytes);
+        string prompt = download == 0 ? "Setup can reuse the local NVIDIA audio tools." :
+            $"Download {InstallFiles.Size(download)} for the NVIDIA edition of PyTorch, which separates cutscene audio on your GPU.";
+        if (!approve("Use NVIDIA acceleration?", prompt + " You can also choose CPU or skip cutscene conversion.", token))
+            return InstallHardware.Cpu;
+        approved.AddRange(needed);
+        return backend;
     }
 
     internal void SelectSoundtrack(bool preserve)
@@ -305,7 +416,8 @@ internal sealed class InstallSession
         progress("Installed " + asset.label + ". Choose it in F10 > Music when you play.", -1, -1);
     }
 
-    private void PrepareMovies(string library, SetupAssets assets, SetupAssets gpuAssets, InstallProgress progress, CancellationToken token)
+    private bool PrepareMovies(string library, SetupAssets assets, SetupAssets gpuAssets, InstallProgress progress,
+        Action<CutsceneUpdate> timing, Func<bool> approveCpu, CancellationToken token)
     {
         string name = MusicPack.Name(library);
         if (!Pack.HasLibrary(library))
@@ -315,22 +427,25 @@ internal sealed class InstallSession
         if (MovieReady(library))
         {
             ResultsLine("Reused prepared " + name + " cutscenes.", progress);
-            return;
+            return true;
         }
         if (Backend == InstallHardware.Gpu)
         {
-            try { CutsceneSetup.Run(this, library, Backend, gpuAssets, progress, token); }
+            try { CutsceneSetup.Run(this, library, Backend, gpuAssets, progress, timing, token); }
             catch (Exception error) when (error is not OperationCanceledException)
             {
-                progress("NVIDIA processing couldn’t finish. Using the reviewed CPU tools. " + error.Message, -1, -1);
+                progress("NVIDIA couldn’t finish. Setup will ask before using the CPU. " + error.Message, 0, 0);
+                if (!approveCpu())
+                    return false;
                 Backend = InstallHardware.Cpu;
             }
         }
         if (Backend == InstallHardware.Cpu && !MovieReady(library))
-            CutsceneSetup.Run(this, library, Backend, assets, progress, token);
+            CutsceneSetup.Run(this, library, Backend, assets, progress, timing, token);
         if (!MovieReady(library))
             throw new IOException(name + " cutscenes could not be verified.");
         ResultsLine("Prepared " + name + " cutscenes.", progress);
+        return true;
     }
 
     private void PrepareCopy(InstallProgress progress, CancellationToken token)

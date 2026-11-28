@@ -10,6 +10,9 @@ internal static class ManagedInstall
     internal const string Launcher = "Play with Effects.exe";
     internal const string Marker = "NeonLoop.install";
     internal const string OwnedFiles = "NeonLoop.files";
+    private const string RuntimeMarker = "NeonLoop.runtime";
+    private const string RuntimeDirectory = "Data";
+    private const string UninstallShortcut = "Uninstall NeonLoop.lnk";
     internal const string CopyArgument = "--install-payload";
     internal const string RemoveArgument = "--remove-neonloop";
     internal const string RemoveFilesArgument = "--remove-neonloop-files";
@@ -40,6 +43,13 @@ internal static class ManagedInstall
     }
 
     internal static bool CanElevate(string folder) => Files.IsInside(folder, ProgramRoot);
+
+    internal static bool IsProtectedLocation(string folder) =>
+        new[] { Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolder.ProgramFilesX86, Environment.SpecialFolder.Windows }
+            .Select(Environment.GetFolderPath).Where(path => !string.IsNullOrEmpty(path))
+            .Any(path => SamePath(folder, path) || Files.IsInside(folder, path));
+
+    private static bool SamePath(string first, string second) => string.Equals(first, second, StringComparison.OrdinalIgnoreCase);
 
     internal static string ReadVersion(string folder)
     {
@@ -135,6 +145,33 @@ internal static class ManagedInstall
 
     internal static string RuntimeFolder(string folder)
     {
+        string central = CentralRuntime(folder);
+        return OwnsRuntime(central, folder) ? central : LegacyRuntimeFolder(folder);
+    }
+
+    private static string CentralRuntime(string folder) => Path.Combine(folder, RuntimeDirectory);
+
+    internal static bool HasCentralRuntime(string folder) => OwnsRuntime(CentralRuntime(folder), folder);
+
+    internal static string PreviewRuntime(string folder)
+    {
+        if (HasCentralRuntime(folder))
+            return CentralRuntime(folder);
+        string previous = LegacyRuntimeFolder(folder);
+        Files.CheckNoLinks(previous);
+        return IsProtectedLocation(folder) || NetworkPrivacy.ReadChoice(Path.Combine(previous, "Effects")) == "block"
+            ? previous : CentralRuntime(folder);
+    }
+
+    private static bool OwnsRuntime(string runtime, string folder)
+    {
+        string marker = Path.Combine(runtime, RuntimeMarker);
+        Files.CheckNoLinks(marker);
+        return File.Exists(marker) && SamePath(File.ReadAllText(marker), folder);
+    }
+
+    private static string LegacyRuntimeFolder(string folder)
+    {
         using var entry = Registry.CurrentUser.OpenSubKey(UninstallKey + "\\" + EntryPrefix + RuntimeId(folder));
         if (entry?.GetValue("RuntimeLocation") is not string custom)
             return Path.Combine(DataRoot, RuntimeId(folder));
@@ -143,39 +180,74 @@ internal static class ManagedInstall
             throw new IOException("NeonLoop couldn’t verify the private game location. Reconnect the selected drive and retry.");
         custom = Path.GetFullPath(custom);
         Files.RequireSeparate(custom, folder);
-        string marker = Path.Combine(custom, "NeonLoop.runtime");
-        Files.CheckNoLinks(marker);
         if (Directory.Exists(custom) && Directory.EnumerateFileSystemEntries(custom).Any() &&
-            (!File.Exists(marker) || !File.ReadAllText(marker).Equals(folder, StringComparison.OrdinalIgnoreCase)))
+            !OwnsRuntime(custom, folder))
             throw new IOException("NeonLoop couldn’t verify the private game location.");
         return custom;
     }
 
-    private static string RuntimeTail(string folder) => Path.Combine("GoodTripGoodTip", "NeonLoop", RuntimeId(folder));
-
-    internal static string SelectRuntimeFolder(string folder, string parent, string steamGame)
+    internal static void ReviewRuntime(string folder, string steamGame)
     {
-        folder = Validate(folder);
-        string runtime = Path.GetFullPath(Path.Combine(parent, RuntimeTail(folder)));
-        if (Path.GetPathRoot(runtime)!.StartsWith(@"\\", StringComparison.Ordinal))
-            throw new IOException("Choose a folder on a local drive.");
-        Files.RequireSeparate(runtime, folder);
+        string runtime = PreviewRuntime(folder);
         Files.RequireSeparate(runtime, steamGame);
         Files.CheckNoLinks(runtime);
-        string marker = Path.Combine(runtime, "NeonLoop.runtime");
-        if (Directory.Exists(runtime) && Directory.EnumerateFileSystemEntries(runtime).Any() &&
-            (!File.Exists(marker) || !File.ReadAllText(marker).Equals(folder, StringComparison.OrdinalIgnoreCase)))
-            throw new IOException("Choose an unused folder for the private game copy.");
-        Directory.CreateDirectory(runtime);
-        InstallFiles.WriteText(marker, folder);
-        return runtime;
+        if (SamePath(runtime, CentralRuntime(folder)) && Directory.Exists(runtime) && !OwnsRuntime(runtime, folder))
+            throw new IOException("This location has a Data folder that belongs to something else. Choose another location.");
     }
 
-    internal static void RememberRuntimeFolder(string installation, string runtime)
+    internal static string ActivateRuntime(string folder, CancellationToken token)
     {
-        using var entry = Registry.CurrentUser.CreateSubKey(UninstallKey + "\\" + EntryPrefix + RuntimeId(installation));
-        entry.SetValue("RuntimeLocation", runtime);
+        string target = PreviewRuntime(folder);
+        if (!SamePath(target, CentralRuntime(folder)) || OwnsRuntime(target, folder))
+            return target;
+
+        string previous = LegacyRuntimeFolder(folder);
+        Files.CheckNoLinks(previous);
+        bool hasPrevious = Directory.Exists(previous);
+        if (hasPrevious && SamePath(Path.GetPathRoot(previous), Path.GetPathRoot(target)))
+        {
+            _ = Files.Tree(previous, token).Count();
+            InstallFiles.WriteText(Path.Combine(previous, RuntimeMarker), folder);
+            Directory.Move(previous, target);
+            return target;
+        }
+        if (hasPrevious)
+        {
+            long bytes = Files.Tree(previous, token).Where(item => !item.Directory).Sum(item => new FileInfo(item.Path).Length);
+            InstallFiles.EnsureSpace(target, bytes, "bring your existing NeonLoop data into the install folder");
+        }
+        string staging = Files.Under(folder, RuntimeDirectory + ".moving-" + Guid.NewGuid().ToString("N") + ".installing");
+        Directory.CreateDirectory(staging);
+        try
+        {
+            if (hasPrevious)
+                Files.CopyTreeAsync(previous, staging, token).GetAwaiter().GetResult();
+            token.ThrowIfCancellationRequested();
+            InstallFiles.WriteText(Path.Combine(staging, RuntimeMarker), folder);
+            Directory.Move(staging, target);
+            return target;
+        }
+        finally { InstallFiles.ClearOwnedFolder(staging); }
     }
+
+    internal static IEnumerable<string> DataFolders(string folder)
+    {
+        var candidates = new[] { RuntimeFolder(folder), Path.Combine(DataRoot, RuntimeId(folder)) }.ToList();
+        if (HasCentralRuntime(folder))
+        {
+            using var entry = Registry.CurrentUser.OpenSubKey(UninstallKey + "\\" + EntryPrefix + RuntimeId(folder));
+            if (entry?.GetValue("RuntimeLocation") is string custom &&
+                Path.IsPathFullyQualified(custom) && custom.EndsWith(RuntimeTail(folder), StringComparison.OrdinalIgnoreCase))
+            {
+                string path = Path.GetFullPath(custom);
+                Files.RequireSeparate(path, folder);
+                candidates.Add(path);
+            }
+        }
+        return candidates.Distinct(StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static string RuntimeTail(string folder) => Path.Combine("GoodTripGoodTip", "NeonLoop", RuntimeId(folder));
 
     private static string RuntimeId(string folder) =>
         Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(folder.ToUpperInvariant())))[..24];
@@ -187,7 +259,8 @@ internal static class ManagedInstall
             throw new IOException("The private game location is invalid.");
         path = Path.GetFullPath(path);
         string tail = Path.Combine(RuntimeTail(folder), "Effects");
-        if (!path.EndsWith(Path.DirectorySeparatorChar + tail, StringComparison.OrdinalIgnoreCase))
+        if (!SamePath(path, Path.Combine(CentralRuntime(folder), "Effects")) &&
+            !path.EndsWith(Path.DirectorySeparatorChar + tail, StringComparison.OrdinalIgnoreCase))
             throw new IOException("The private game location is invalid.");
         Files.CheckNoLinks(path);
         return path;
@@ -275,6 +348,36 @@ internal static class ManagedInstall
         WithShortcut(folder, Environment.SpecialFolder.Programs, startMenu);
     }
 
+    internal static void SaveUninstallShortcut(string folder)
+    {
+        string path = Path.Combine(folder, UninstallShortcut);
+        Files.CheckNoLinks(path);
+        string target = Path.Combine(folder, Launcher);
+        dynamic shell = Activator.CreateInstance(Type.GetTypeFromProgID("WScript.Shell", true)!)!;
+        dynamic link = shell.CreateShortcut(path);
+        if (File.Exists(path) && (!SamePath((string)link.TargetPath, target) ||
+            (string)link.Arguments != UninstallArgument))
+            return;
+        link.TargetPath = target;
+        link.Arguments = UninstallArgument;
+        link.WorkingDirectory = folder;
+        link.Description = "Uninstall NeonLoop";
+        link.IconLocation = target + ",0";
+        link.Save();
+    }
+
+    private static void RemoveUninstallShortcut(string folder)
+    {
+        string path = Path.Combine(folder, UninstallShortcut);
+        Files.CheckNoLinks(path);
+        if (!File.Exists(path))
+            return;
+        dynamic shell = Activator.CreateInstance(Type.GetTypeFromProgID("WScript.Shell", true)!)!;
+        dynamic link = shell.CreateShortcut(path);
+        if (SamePath((string)link.TargetPath, Path.Combine(folder, Launcher)) && (string)link.Arguments == UninstallArgument)
+            File.Delete(path);
+    }
+
     internal static void RemovePayload(string folder)
     {
         folder = Validate(folder);
@@ -286,6 +389,7 @@ internal static class ManagedInstall
         string marker = Path.Combine(folder, Marker);
         foreach (string file in files.Except(new[] { launcher, marker }, StringComparer.OrdinalIgnoreCase))
             File.Delete(file);
+        RemoveUninstallShortcut(folder);
         File.Delete(launcher);
         File.Delete(Path.Combine(folder, OwnedFiles));
         File.Delete(marker);
@@ -333,18 +437,16 @@ internal static class ManagedInstall
         string temporary = null;
         if (Files.IsInside(executable, folder))
         {
-            Directory.CreateDirectory(RemovalHelpers);
-            temporary = Path.Combine(RemovalHelpers, "NeonLoop.Remove." + Guid.NewGuid().ToString("N") + ".exe");
+            Files.CheckNoLinks(TemporaryRemovalHelpers);
+            Directory.CreateDirectory(TemporaryRemovalHelpers);
+            temporary = Path.Combine(TemporaryRemovalHelpers, "NeonLoop.Remove." + Guid.NewGuid().ToString("N") + ".exe");
             File.Copy(executable, temporary);
             executable = temporary;
         }
         var start = new ProcessStartInfo(executable) { UseShellExecute = true };
         foreach (string arg in new[] { RemoveArgument, folder, Environment.ProcessId.ToString(), removeData ? "remove-data" : "keep-data" })
             start.ArgumentList.Add(arg);
-        try
-        {
-            using var process = Process.Start(start) ?? throw new IOException("Windows couldn’t start NeonLoop removal.");
-        }
+        try { using var process = Process.Start(start) ?? throw new IOException("Windows couldn’t start NeonLoop removal."); }
         catch
         {
             if (temporary != null)
@@ -372,16 +474,20 @@ internal static class ManagedInstall
             if (!IsManaged(folder))
                 throw new IOException("Windows couldn’t identify this NeonLoop installation.");
             _ = ReadOwnedFiles(folder);
-            string runtime = RuntimeFolder(folder);
+            string[] data = DataFolders(folder).ToArray();
             if (removeData)
-                NetworkPrivacy.RemoveInstalledRules(folder, runtime);
+                foreach (string runtime in data)
+                    NetworkPrivacy.RemoveInstalledRules(folder, runtime);
             SaveShortcuts(folder, false, false);
             if (removeData)
             {
-                RemoveRuntime(runtime);
-                string defaultRuntime = Path.Combine(DataRoot, RuntimeId(folder));
-                if (!defaultRuntime.Equals(runtime, StringComparison.OrdinalIgnoreCase))
-                    RemoveRuntime(defaultRuntime);
+                foreach (string runtime in data.Where(Directory.Exists))
+                {
+                    if (SamePath(runtime, Path.Combine(DataRoot, RuntimeId(folder))) || OwnsRuntime(runtime, folder))
+                        RemoveRuntime(runtime);
+                    else
+                        throw new IOException("NeonLoop couldn’t verify which files it owns in " + runtime);
+                }
             }
             if (CanElevate(folder))
             {
@@ -416,20 +522,67 @@ internal static class ManagedInstall
         Directory.Delete(runtime);
     }
 
+    internal static void RemovePreviousData(string folder, string previous)
+    {
+        if (SamePath(previous, RuntimeFolder(folder)) || !DataFolders(folder).Contains(previous, StringComparer.OrdinalIgnoreCase) ||
+            (!SamePath(previous, Path.Combine(DataRoot, RuntimeId(folder))) && !OwnsRuntime(previous, folder)))
+            throw new IOException("Setup couldn’t verify the previous NeonLoop storage.");
+        RemoveRuntime(previous);
+    }
+
     private static string RemovalHelpers => Path.Combine(DataRoot, "RemovalHelpers");
+    private static string TemporaryRemovalHelpers => Path.Combine(Path.GetTempPath(), "GoodTripGoodTip-NeonLoop");
+
+    private static bool IsRemovalHelper(string name) => name.StartsWith("NeonLoop.Remove.", StringComparison.Ordinal) &&
+        name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) && name.Length == 52 &&
+        Guid.TryParseExact(name.AsSpan(16, 32), "N", out _);
+
+    internal static void RetireRemovalHelper()
+    {
+        string file = Environment.ProcessPath!;
+        if (!Files.IsInside(file, TemporaryRemovalHelpers) || !IsRemovalHelper(Path.GetFileName(file)))
+            return;
+        try
+        {
+            string powershell = Path.Combine(Environment.SystemDirectory, "WindowsPowerShell", "v1.0", "powershell.exe");
+            const string script = """
+                $helper = $env:NEONLOOP_REMOVAL_FILE
+                $processId = [int]$env:NEONLOOP_REMOVAL_PROCESS
+                if (Get-Process -Id $processId -ErrorAction SilentlyContinue) {
+                    Wait-Process -Id $processId -ErrorAction SilentlyContinue
+                }
+                [IO.File]::Delete($helper)
+                $folder = [IO.Path]::GetDirectoryName($helper)
+                try { [IO.Directory]::Delete($folder) } catch [IO.IOException] {}
+                """;
+            var start = new ProcessStartInfo(powershell) { UseShellExecute = false, CreateNoWindow = true };
+            foreach (string arg in new[] { "-NoLogo", "-NoProfile", "-NonInteractive", "-EncodedCommand",
+                Convert.ToBase64String(Encoding.Unicode.GetBytes(script)) })
+                start.ArgumentList.Add(arg);
+            start.Environment["NEONLOOP_REMOVAL_FILE"] = file;
+            start.Environment["NEONLOOP_REMOVAL_PROCESS"] = Environment.ProcessId.ToString();
+            using var cleanup = Process.Start(start);
+        }
+        catch (Exception error) when (error is IOException or Win32Exception or UnauthorizedAccessException) { }
+    }
 
     internal static void CleanRemovalHelpers()
     {
-        try
+        foreach (string directory in new[] { RemovalHelpers, TemporaryRemovalHelpers })
         {
-            Files.CheckNoLinks(RemovalHelpers);
-            if (!Directory.Exists(RemovalHelpers))
-                return;
-            foreach (var file in new DirectoryInfo(RemovalHelpers).EnumerateFiles("NeonLoop.Remove.*.exe"))
-                if (file.Name.Length == 52 && Guid.TryParseExact(file.Name.AsSpan(16, 32), "N", out _) &&
-                    (file.Attributes & FileAttributes.ReparsePoint) == 0 && file.LastWriteTimeUtc < DateTime.UtcNow.AddMinutes(-2))
-                    Files.TryDeleteFile(file.FullName);
+            try
+            {
+                Files.CheckNoLinks(directory);
+                if (!Directory.Exists(directory))
+                    continue;
+                foreach (var file in new DirectoryInfo(directory).EnumerateFiles("NeonLoop.Remove.*.exe"))
+                    if (IsRemovalHelper(file.Name) && (file.Attributes & FileAttributes.ReparsePoint) == 0 &&
+                        file.LastWriteTimeUtc < DateTime.UtcNow.AddMinutes(-2))
+                        Files.TryDeleteFile(file.FullName);
+                if (!Directory.EnumerateFileSystemEntries(directory).Any())
+                    Directory.Delete(directory);
+            }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException) { }
         }
-        catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException) { }
     }
 }

@@ -14,19 +14,19 @@ internal sealed class MusicPack
     internal bool HasSoundtrack { get { return installed.Length != 0; } }
     internal string InstalledKeys { get { return string.Join(",", installed); } }
 
-    internal MusicPack(string effects, SteamGame game)
+    internal MusicPack(string effects, SteamGame game, string[] verifiedSeal = null, string[] verifiedCues = null)
     {
         Root = Path.Combine(effects, "bin", "MusicPack");
         string data = Path.Combine(game.Installed, "ROM_Data");
-        string[] ready = File.ReadAllLines(Path.Combine(Root, "Ready.txt"));
+        string[] ready = verifiedSeal ?? File.ReadAllLines(Path.Combine(Root, "Ready.txt"));
         if (ready.Length != 3 || ready[0] != game.BuildId ||
-            ready[1] != Digest(Path.Combine(data, "Managed", "Assembly-CSharp.dll")) ||
-            ready[2] != Digest(Path.Combine(data, "globalgamemanagers")))
+            verifiedSeal == null && (ready[1] != Digest(Path.Combine(data, "Managed", "Assembly-CSharp.dll")) ||
+            ready[2] != Digest(Path.Combine(data, "globalgamemanagers"))))
             throw new InvalidDataException("This release supports a different Steam build of 2064: Read Only Memories.");
         version = ready[0] + "-" + ready[1].Substring(0, 12);
 
         var keys = new List<string>();
-        string[] cues = File.ReadAllLines(Path.Combine(Root, "Cues.tsv"));
+        string[] cues = verifiedCues ?? File.ReadAllLines(Path.Combine(Root, "Cues.tsv"));
         foreach (string library in Libraries)
             if (HasCues(library, cues))
                 keys.Add(library);

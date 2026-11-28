@@ -9,9 +9,11 @@ internal static class CutsceneSetup
     private static readonly TimeSpan IdleLimit = TimeSpan.FromMinutes(30);
 
     internal static void Run(InstallSession session, string library, string backend, SetupAssets assets,
-        InstallProgress progress, CancellationToken token)
+        InstallProgress progress, Action<CutsceneUpdate> timing, CancellationToken token)
     {
-        var files = session.ToolsFor(backend).ToDictionary(asset => asset.label, asset => assets.Get(asset, token));
+        string device = backend == InstallHardware.Gpu ? "cuda" : "cpu";
+        timing(new CutsceneUpdate("preparing", 0, 0, device));
+        var files = ResolveTools(session, backend, assets, timing, token);
         string tools = session.Tools;
         string scripts = Path.Combine(session.Effects, "CutsceneSetup");
         string uv = Expand(files["uv setup tool"], Path.Combine(tools, "Uv"), "uv.exe", progress, token);
@@ -24,11 +26,17 @@ internal static class CutsceneSetup
         string python = Path.Combine(environment, "Scripts", "python.exe");
         string ready = Path.Combine(environment, ".ready");
         string nativeRuntime = Path.Combine(scripts, "NativeRuntime");
-        string device = backend == InstallHardware.Gpu ? "cuda" : "cpu";
-        Directory.CreateDirectory(tools);
+        string temp = Path.Combine(tools, "Temp");
+        Directory.CreateDirectory(temp);
+        string environmentVersion = backend + "\n" + standalone;
         var variables = new Dictionary<string, string>
         {
             ["UV_CACHE_DIR"] = Path.Combine(tools, "PackageCache"),
+            ["TMP"] = temp, ["TEMP"] = temp, ["TMPDIR"] = temp,
+            ["TORCH_HOME"] = Path.Combine(tools, "TorchCache"),
+            ["XDG_CACHE_HOME"] = Path.Combine(tools, "ModelCache"),
+            ["HF_HOME"] = Path.Combine(tools, "ModelCache", "HuggingFace"),
+            ["CUDA_CACHE_PATH"] = Path.Combine(tools, "CudaCache"),
             ["UV_NO_CONFIG"] = "1", ["UV_NO_PROGRESS"] = "1", ["UV_OFFLINE"] = "1", ["UV_NO_PYTHON_DOWNLOADS"] = "1",
             ["PYTHONNOUSERSITE"] = "1", ["PYTHONDONTWRITEBYTECODE"] = "1", ["PYTHONUTF8"] = "1",
             ["PYTHONHOME"] = null, ["PYTHONPATH"] = Path.GetDirectoryName(Path.GetDirectoryName(bandit)!),
@@ -36,8 +44,8 @@ internal static class CutsceneSetup
                 Environment.GetEnvironmentVariable("PATH"))
         };
 
-        void Start(string command, params string[] arguments) => RunTool(command, arguments, tools, variables, progress, token);
-        if (!File.Exists(python) || !File.Exists(ready) || File.ReadAllText(ready).Trim() != backend)
+        void Start(string command, params string[] arguments) => RunTool(command, arguments, tools, variables, progress, timing, token);
+        if (!File.Exists(python) || !File.Exists(ready) || File.ReadAllText(ready).Trim() != environmentVersion)
         {
             if (Directory.Exists(environment))
             {
@@ -54,7 +62,7 @@ internal static class CutsceneSetup
             Start(uv, "pip", "check", "--offline", "--python", python);
             StageAudioRuntime(nativeRuntime, environment, token);
             Start(python, "-c", "import torch, numpy, soundfile");
-            InstallFiles.WriteText(ready, backend);
+            InstallFiles.WriteText(ready, environmentVersion);
         }
         else
             StageAudioRuntime(nativeRuntime, environment, token);
@@ -62,10 +70,38 @@ internal static class CutsceneSetup
             Start(python, "-c", "import torch; assert torch.cuda.is_available(); torch.zeros(1, device='cuda').sum().item(); torch.cuda.synchronize()");
         try
         {
-            Start(python, "-u", Path.Combine(scripts, "GenerateCutscenes.py"), session.Steam.Installed,
-                session.Pack.Root, session.Cutscenes, library, files["Bandit cutscene model"], "--device", device);
+            Start(python, ["-u", Path.Combine(scripts, "GenerateCutscenes.py"), session.Steam.Installed,
+                session.Pack.Root, session.Cutscenes, library, files["Bandit cutscene model"], "--device", device,
+                "--remaining-libraries", .. session.Movies.Where(key => key != library && !session.MovieReady(key))]);
         }
         finally { session.RemoveMoviePartials(library, backend); }
+    }
+
+    private static Dictionary<string, string> ResolveTools(InstallSession session, string backend, SetupAssets assets,
+        Action<CutsceneUpdate> timing, CancellationToken token)
+    {
+        var tools = session.ToolsFor(backend).ToArray();
+        var pending = tools.Where(asset => !SetupAssets.HasCandidate(session.Effects, asset)).ToHashSet();
+        long total = pending.Sum(asset => asset.bytes);
+        long complete = 0;
+        var files = new Dictionary<string, string>();
+        timing(new CutsceneUpdate("tools", 0, total, ""));
+        foreach (InstallAsset asset in tools)
+        {
+            files[asset.label] = assets.Get(asset, token, (_, done, count) =>
+            {
+                if (count != asset.bytes || done < 0)
+                    return;
+                if (pending.Add(asset))
+                    total += count;
+                timing(new CutsceneUpdate(done == 0 ? "tool-file" : "tools-progress",
+                    complete + done, total, asset.label));
+            });
+            if (pending.Contains(asset))
+                complete += asset.bytes;
+        }
+        timing(new CutsceneUpdate("tools", total, total, ""));
+        return files;
     }
 
     private static void StageAudioRuntime(string source, string environment, CancellationToken token)
@@ -108,7 +144,7 @@ internal static class CutsceneSetup
     }
 
     private static void RunTool(string executable, string[] arguments, string directory,
-        Dictionary<string, string> variables, InstallProgress progress, CancellationToken token)
+        Dictionary<string, string> variables, InstallProgress progress, Action<CutsceneUpdate> timing, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         var start = new ProcessStartInfo(executable)
@@ -132,6 +168,15 @@ internal static class CutsceneSetup
             {
                 idle.CancelAfter(IdleLimit);
                 token.ThrowIfCancellationRequested();
+                if (line == "HEARTBEAT")
+                    continue;
+                if (CutsceneUpdate.TryRead(line, out var update))
+                {
+                    timing(update);
+                    if (update.Stage != "plan")
+                        progress(update.Label, update.Done, update.Total);
+                    continue;
+                }
                 string[] fields = line.Split('\t', 4);
                 if (fields.Length == 4 && fields[0] == "PROGRESS" &&
                     long.TryParse(fields[1], out long done) && long.TryParse(fields[2], out long total))

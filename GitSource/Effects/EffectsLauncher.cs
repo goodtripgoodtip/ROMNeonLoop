@@ -30,7 +30,8 @@ internal static class EffectsLauncher
                 InitializeInstallerUi();
                 using var wizard = new InstallWizard(Effects,
                     removalWork: () => ManagedInstall.CompleteRemoval(args[1], int.Parse(args[2]), removeData));
-                RunWizard(wizard);
+                try { RunWizard(wizard); }
+                finally { ManagedInstall.RetireRemovalHelper(); }
                 return wizard.OutcomeOk ? 0 : 1;
             }
             if (args.Length == 2 && args[0] == ManagedInstall.RemoveFilesArgument)
@@ -137,13 +138,19 @@ internal static class EffectsLauncher
         string message = error.GetBaseException().Message;
         try
         {
-            Directory.CreateDirectory(ManagedInstall.DataRoot);
-            string log = Path.Combine(ManagedInstall.DataRoot, "setup-error.log");
-            File.WriteAllText(log, DateTimeOffset.Now.ToString("O") + Environment.NewLine + error);
-            message += Environment.NewLine + Environment.NewLine + "Setup log: " + log;
+            if (ManagedInstall.IsManaged(InstallFolder))
+            {
+                string runtime = ManagedInstall.RuntimeFolder(InstallFolder);
+                string log = Path.Combine(runtime, "setup-error.log");
+                Directory.CreateDirectory(runtime);
+                GameInstaller.InstallFiles.CheckNoLinks(log);
+                File.WriteAllText(log, DateTimeOffset.Now.ToString("O") + Environment.NewLine + error);
+                message += Environment.NewLine + Environment.NewLine + "Setup log: " + log;
+            }
         }
         catch (IOException) { }
         catch (UnauthorizedAccessException) { }
+        catch (InvalidDataException) { }
         ShowNotice(message);
     }
 
@@ -180,9 +187,10 @@ internal static class EffectsLauncher
         Effects = effects;
     }
 
-    internal static RunningGame StartGame(InstallSession session, InstallProgress progress, CancellationToken token)
+    internal static RunningGame StartGame(InstallSession session, InstallProgress progress, CancellationToken token,
+        bool whileConverting = false)
     {
-        if (!session.CanPlay)
+        if (!(whileConverting ? session.CanPlayDuringConversion : session.CanPlay))
             throw new InvalidOperationException("Finish the private game and network setup first.");
         CheckNoGame();
         token.ThrowIfCancellationRequested();
