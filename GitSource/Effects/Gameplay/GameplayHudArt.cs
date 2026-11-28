@@ -63,15 +63,21 @@ internal static class GameplayHudArt
         Draw(complete ? "check" : "target", box, pulse ? Color.Lerp(cyan, amber, phase) : cyan, Color.black);
     }
 
-    internal static void Action(string verb, Rect box, bool complete)
+    internal static void Action(string verb, Rect box, GameplayProgress.ActionStatus status)
     {
         Color fill = new Color(.76f, .92f, 1f);
-        Draw(verb, box, fill, new Color(.055f, .035f, .11f, .98f));
-        if (complete)
+        if (status == GameplayProgress.ActionStatus.Untried)
         {
-            float size = box.width * .49f;
-            Check(new Rect(box.xMax - size, box.yMax - size, size, size));
+            Draw(verb, box, fill, new Color(.055f, .035f, .11f, .98f));
+            return;
         }
+        float size = Mathf.Round(box.width * .52f);
+        var badge = new Rect(box.xMax - size, box.yMax - size * .55f, size, size);
+        Draw(verb, box, fill, new Color(.055f, .035f, .11f, 1f), inset: true);
+        if (status == GameplayProgress.ActionStatus.Covered)
+            Check(badge);
+        else
+            Draw("replay", badge, new Color(1f, .81f, .26f), new Color(.055f, .035f, .1f, 1f));
     }
 
     internal static void Check(Rect box)
@@ -79,7 +85,7 @@ internal static class GameplayHudArt
         Draw("check", box, new Color(.64f, 1f, .72f), new Color(.055f, .035f, .1f, .98f));
     }
 
-    private static void Draw(string key, Rect box, Color foreground, Color background)
+    private static void Draw(string key, Rect box, Color foreground, Color background, bool inset = false)
     {
         Color saved = GUI.color;
         try
@@ -87,7 +93,8 @@ internal static class GameplayHudArt
             GUI.color = background;
             GUI.DrawTexture(box, Texture2D.whiteTexture);
             GUI.color = foreground;
-            GUI.DrawTexture(box, Texture(key));
+            Rect glyph = inset ? new Rect(box.x + 1f, box.y + 1f, box.width * .90f, box.height * .90f) : box;
+            GUI.DrawTexture(glyph, Texture(key));
         }
         finally { GUI.color = saved; }
     }
@@ -95,7 +102,7 @@ internal static class GameplayHudArt
     private static Texture2D Texture(string key)
     {
         if (key != "look" && key != "talk" && key != "use" && key != "item" &&
-            key != "scroll" && key != "target" && key != "check")
+            key != "scroll" && key != "target" && key != "check" && key != "replay")
             key = "use";
         Texture2D texture;
         if (Icons.TryGetValue(key, out texture) && texture != null)
@@ -120,6 +127,9 @@ internal static class GameplayHudArt
                 break;
             case "check":
                 glyph = new[] { ".......", ".....#.", "....##.", "#..##..", "####...", ".##....", "......." };
+                break;
+            case "replay":
+                glyph = new[] { "..####.", ".##...#", "###...#", "......#", "#.....#", ".#####.", "......." };
                 break;
             default:
                 glyph = new[] { "..##...", "..##...", "..####.", "#.###.#", "##....#", ".#...#.", "..###.." };

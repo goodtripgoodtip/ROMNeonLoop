@@ -194,6 +194,7 @@ internal static class EffectsLauncher
             throw new InvalidOperationException("Finish the private game and network setup first.");
         CheckNoGame();
         token.ThrowIfCancellationRequested();
+        GameplayInstallSettings.Ensure(session.Effects);
         progress("Starting Steam if it is not already running: " + session.Steam.Steam, 0, 0);
         StartSteam(session.Steam.Steam, token);
         CheckNoGame();
@@ -216,7 +217,7 @@ internal static class EffectsLauncher
             if (InstallAssets.IsMusicDownload(asset))
                 start.EnvironmentVariables["ROM_MUSIC_DOWNLOAD_" + asset.key] = asset.url;
         start.EnvironmentVariables["ROM_CUTSCENES"] = session.Cutscenes;
-        start.EnvironmentVariables["ROM_GAMEPLAY_SETTINGS"] = Path.Combine(Effects, "GameplaySettings.txt");
+        start.EnvironmentVariables["ROM_GAMEPLAY_SETTINGS"] = GameplayInstallSettings.PathFor(session.Effects);
         start.EnvironmentVariables["ROM_GAMEPLAY_WINDOW"] = Path.Combine(Effects, "GameplayWindow.txt");
         start.EnvironmentVariables["ROM_GAMEPLAY_HISTORY"] = Path.Combine(gameFolder, ".neonloop-dialogue-" + Guid.NewGuid().ToString("N"));
         start.EnvironmentVariables["ROM_GAMEPLAY_DATA"] = Path.Combine(Effects, "GameplayData");

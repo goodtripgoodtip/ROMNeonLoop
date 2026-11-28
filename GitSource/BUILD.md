@@ -12,7 +12,7 @@ From PowerShell in this folder, set the path to your copy of the game and build:
 
 Run **out/Play with Effects.exe**. The launcher copies the Steam game privately and applies its assembly patch with the bundled .NET runtime. Easy Install preselects Dark Synthwave, and fresh installs leave cutscene conversion unchecked. After installation, the Gameplay options page applies the recommended settings to a fresh install. Returning players keep their existing settings.
 
-The build includes the launcher, effects add-on, shaders, audio processor, and score patcher. **Setup options → Customize installation → Optional cutscene conversion** installs processing tools on demand. Setup asks before using the CPU, estimates separation and render times after a sample clip, and lets the player start the game or skip unfinished conversion once the game and soundtrack are ready. [Cutscene setup script](Effects/Music/SetupCutscenes.ps1) · [Pinned downloads](Effects/Music/DownloadAssets.json)
+The build includes the launcher, effects add-on, shaders, audio processor, and score patcher. Optional cutscene conversion installs processing tools on demand. A compatible NVIDIA GPU can speed up audio separation with CUDA. Setup asks before using the slower CPU path and reports separation and rendering times separately. Players can start the game or skip unfinished conversion once the game and soundtrack are ready. [Cutscene setup script](Effects/Music/SetupCutscenes.ps1) · [Pinned downloads](Effects/Music/DownloadAssets.json)
 
 For a manual output path, pass **-Output** pointing to a new folder. The build never needs a copy of the original mod’s dist folder or an existing cutscene cache.
 
@@ -27,7 +27,7 @@ The soundtrack provenance records the original cue-generation order, source URLs
 Build to a clean folder that has never been used to play NeonLoop. On PowerShell 7, run:
 
 ```powershell
-.\Package-Setup.ps1 -Build .\out -Output .\NeonLoop-Setup.exe -Version v0.6.8
+.\Package-Setup.ps1 -Build .\out -Output .\NeonLoop-Setup.exe -Version v0.6.9
 ```
 
 The standard EXE contains the base mod and DSP source. Add cleared soundtrack ZIPs as separate release assets. Each ZIP contains `Effects/bin/MusicPack/<key>/CueCredits.tsv` and one MP3 per cue under `Cues/`. Update `Effects/Music/ReleaseAssets.json` with the release URL, ZIP byte size, total expanded file size, and SHA-256 before building. The launcher uses this list for verified downloads and imports.

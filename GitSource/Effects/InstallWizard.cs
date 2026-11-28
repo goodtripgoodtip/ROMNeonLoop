@@ -517,12 +517,6 @@ internal sealed class InstallWizard : Form
 
     private void Home(string status = null, bool showSetup = false)
     {
-        if (!showSetup && session?.Ready == true && session.Request?.OptionsPending == true &&
-            (!session.HasIncompleteSelection || session.Request.AllowLimited))
-        {
-            GameplayOptions();
-            return;
-        }
         if (!showSetup && session?.HasIncompleteSelection == true && !session.Request.AllowLimited)
         {
             Finish(new IOException("Some selected features still need setup."));
@@ -556,7 +550,8 @@ internal sealed class InstallWizard : Form
             }
             else
                 Primary("Play Now", async () => await PlayAsync());
-            AddShortcuts(Link("Get music packs", () => MusicOptions()), Link("Setup options", SetupOptions));
+            AddShortcuts(Link("Gameplay options", GameplayOptions), Link("Get music packs", () => MusicOptions()),
+                Link("Setup options", SetupOptions));
             if (session.HasIncompleteSelection)
                 Add(content, Link("Resume setup", () => { custom = false; EasySelection(); }));
         }
@@ -832,7 +827,7 @@ internal sealed class InstallWizard : Form
         }).ToArray();
         Add(panel, TextLabel("Optional cutscene conversion"));
         Wrap(panel, TextLabel(InstallSession.CutscenePurpose));
-        Wrap(panel, TextLabel("Leave the cutscene choices clear to play sooner. CPU conversion can take several hours."));
+        Wrap(panel, TextLabel(InstallSession.ProcessingChoices));
         if (scenes.Length != 0)
             foreach (InstallerCheckBox choice in scenes)
                 Add(panel, choice);
@@ -840,7 +835,7 @@ internal sealed class InstallWizard : Form
             Add(panel, Link("Get music packs for remixed cutscenes", () => { saveCustom(); MusicOptions(); }));
 
         var offline = new InstallerCheckBox { Text = "Use downloads I already have", Checked = localOnly };
-        var gpu = new InstallerCheckBox { Text = "Check for a compatible NVIDIA GPU for cutscene conversion", Checked = consent };
+        var gpu = new InstallerCheckBox { Text = "Check my NVIDIA GPU for CUDA acceleration", Checked = consent };
         Add(panel, offline);
         Add(panel, gpu);
         for (int i = 0; i < packs.Length; i++)
@@ -1048,13 +1043,12 @@ internal sealed class InstallWizard : Form
         if (!custom)
         {
             bool offline = session.IsOfflinePackage || session.Request?.Offline == true;
-            bool fresh = session.Request?.FreshDefaults ?? NetworkPrivacy.ReadChoice(effects) == null;
             session.Request = new EasyInstallRequest(easyPacks, easyMovies == true ? easyPacks : [],
-                Offline: offline, FreshDefaults: fresh);
+                Offline: offline);
         }
         else if (pendingPayload)
             session.Request = new EasyInstallRequest(customPacks ?? [], customMovies,
-                Offline: session.IsOfflinePackage, OptionsPending: false, FreshDefaults: false);
+                Offline: session.IsOfflinePackage);
         session.Movies = custom && !pendingPayload ? customMovies.Where(key =>
             session.Pack.HasLibrary(key) || session.Request?.Libraries.Contains(key) == true).ToArray() : session.Request.Movies;
         string review;
@@ -1083,11 +1077,12 @@ internal sealed class InstallWizard : Form
         foreach (var item in selections)
             Add(content, item);
         var movies = new InstallerCheckBox { Text = "Also convert cutscenes for the selected soundtracks", Checked = easyMovies == true };
-        var gpu = new InstallerCheckBox { Text = "Check for a compatible NVIDIA GPU", Checked = easyHardware };
+        var gpu = new InstallerCheckBox { Text = "Check my NVIDIA GPU for CUDA acceleration", Checked = easyHardware };
         Add(content, movies);
         Add(content, gpu);
         Wrap(content, TextLabel(InstallSession.CutscenePurpose));
-        Wrap(content, TextLabel("You can play with your soundtrack as soon as setup finishes. Cutscene conversion can take several hours on a CPU and needs extra tools."));
+        Wrap(content, TextLabel(InstallSession.ProcessingChoices));
+        Wrap(content, TextLabel("You can play with your soundtrack while setup converts the cutscenes."));
         void UpdateCutsceneChoices()
         {
             movies.Enabled = selections.Any(item => item.Checked);
@@ -1133,10 +1128,8 @@ internal sealed class InstallWizard : Form
         }, EasySelection, "*.exe"));
     }
 
-    private void GameplayOptions()
+    private static (Control panel, Func<uint> readFlags) GameplayControls(uint flags)
     {
-        Page("Gameplay options", UseF10, stage: SetupStage.Play);
-        uint flags = GameplayInstallSettings.Read(effects, session.Request?.FreshDefaults == true);
         var columns = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2 };
         columns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
         columns.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
@@ -1146,7 +1139,7 @@ internal sealed class InstallWizard : Form
         columns.Controls.Add(right, 1, 0);
         foreach (var group in GameplayInstallSettings.Options.GroupBy(option => option.Group))
         {
-            var column = group.Key is "Exploration" or "Puzzle assists" or "PC startup" ? right : left;
+            var column = group.Key is "Exploration" or "Puzzle assists" or "Game startup" ? right : left;
             Add(column, TextLabel(group.Key));
             foreach (var option in group)
             {
@@ -1155,17 +1148,20 @@ internal sealed class InstallWizard : Form
                 Add(column, box);
             }
         }
-        Add(content, columns);
+        return (columns, () => flags);
+    }
+
+    private void GameplayOptions()
+    {
+        Page("Gameplay options", UseF10, stage: SetupStage.Play);
+        var (panel, readFlags) = GameplayControls(GameplayInstallSettings.Read(effects));
+        Add(content, panel);
+        AddButton("Back", () => Home());
         Primary("Save and continue", () =>
         {
             try
             {
-                GameplayInstallSettings.Save(effects, flags);
-                if (session.Request != null)
-                {
-                    session.Request = session.Request with { OptionsPending = false, FreshDefaults = false };
-                    session.Request.Save(effects);
-                }
+                GameplayInstallSettings.SaveReviewed(effects, readFlags());
                 Home();
             }
             catch (Exception error)
@@ -1174,6 +1170,60 @@ internal sealed class InstallWizard : Form
                 QueuePageFit();
             }
         });
+    }
+
+    private bool ReviewGameplayBeforePlay()
+    {
+        if (GameplayInstallSettings.WasReviewed(effects))
+            return true;
+        using var dialog = new Form
+        {
+            Text = "NeonLoop · Gameplay options", Icon = Icon, Font = Font, ShowInTaskbar = false,
+            StartPosition = FormStartPosition.CenterParent, ClientSize = new Size(920, 650),
+            MinimumSize = new Size(700, 470), AutoScaleMode = AutoScaleMode.Dpi,
+            AutoScaleDimensions = new SizeF(96, 96)
+        };
+        InstallerWindow.FitWorkArea(dialog, .53, .60);
+        var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 4, Padding = new Padding(24) };
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        var heading = TextLabel("Choose your gameplay settings. You can change them later with F10.");
+        layout.Controls.Add(heading, 0, 0);
+        var scroller = new Panel { Dock = DockStyle.Fill, AutoScroll = true };
+        var (panel, readFlags) = GameplayControls(GameplayInstallSettings.Read(effects));
+        scroller.Controls.Add(panel);
+        layout.Controls.Add(scroller, 0, 1);
+        var errorText = TextLabel("");
+        layout.Controls.Add(errorText, 0, 2);
+        var buttons = ButtonRow();
+        buttons.FlowDirection = FlowDirection.RightToLeft;
+        var back = new Button { Text = "Back", AutoSize = true, DialogResult = DialogResult.Cancel };
+        var play = new Button { Text = "Save and Play", AutoSize = true };
+        play.Click += (_, _) =>
+        {
+            try
+            {
+                GameplayInstallSettings.SaveReviewed(effects, readFlags());
+                dialog.DialogResult = DialogResult.OK;
+            }
+            catch (Exception error)
+            {
+                LogError(error);
+                errorText.Text = "Your settings couldn’t be saved. Try again or go back to setup.";
+            }
+        };
+        buttons.Controls.AddRange([play, back]);
+        layout.Controls.Add(buttons, 0, 3);
+        dialog.Controls.Add(layout);
+        InstallerTheme.Apply(dialog);
+        InstallerTheme.Primary(play);
+        InstallerTheme.Secondary(back);
+        dialog.AcceptButton = play;
+        dialog.CancelButton = back;
+        return dialog.ShowDialog(this) == DialogResult.OK;
     }
 
     private void ShowInstallReview(string summary, string network, string review)
@@ -1331,6 +1381,18 @@ internal sealed class InstallWizard : Form
     {
         if (GameRunning || launchingGame)
             return;
+        launchingGame = true;
+        try
+        {
+            if (!ReviewGameplayBeforePlay())
+                return;
+        }
+        catch (Exception error)
+        {
+            Finish(error);
+            return;
+        }
+        finally { launchingGame = false; }
         Game?.Dispose();
         Game = null;
         Page("Opening NeonLoop", "Keep Steam open while the game starts.", stage: SetupStage.Play);
@@ -1358,10 +1420,15 @@ internal sealed class InstallWizard : Form
         if (launchingGame || GameRunning || !session.CanPlayDuringConversion)
             return;
         launchingGame = true;
-        button.Enabled = false;
-        button.Text = "Opening game…";
         try
         {
+            if (!ReviewGameplayBeforePlay())
+                return;
+            if (!button.IsDisposed)
+            {
+                button.Enabled = false;
+                button.Text = "Opening game…";
+            }
             Game?.Dispose();
             Game = null;
             Game = await Task.Run(() => EffectsLauncher.StartGame(session, (message, _, _) =>

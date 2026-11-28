@@ -123,15 +123,18 @@ internal sealed class GameplayPatch
         Click("InventoryMenu", "<BuildSetMenu>b__27_2");
         Click("InteractionMenu", "<Launch>b__13_2");
 
-        var interact = Method("SetTag", "Trigger");
-        var action = new VariableDefinition(game.TypeSystem.String);
-        interact.Body.Variables.Add(action);
-        Before(interact, interact.Body.Instructions[0], false, Instruction.Create(OpCodes.Ldarg_0),
-            Instruction.Create(OpCodes.Ldarg_1), Instruction.Create(OpCodes.Call, Hook("GameplayProgress", "BeginAction")),
-            Instruction.Create(OpCodes.Stloc, action));
-        foreach (var end in interact.Body.Instructions.Where(i => i.OpCode == OpCodes.Ret).ToArray())
-            Before(interact, end, true, Instruction.Create(OpCodes.Ldloc, action), Instruction.Create(OpCodes.Ldarg_1),
-                Instruction.Create(OpCodes.Call, Hook("GameplayProgress", "EndAction")));
+        var room = Method("SetMenu", "TriggerSelected");
+        var roomActions = room.Body.Instructions.Where(i => Calls(i, "SetTag", "Trigger")).ToArray();
+        if (roomActions.Length != 2)
+            throw new InvalidOperationException("The stock room action routes changed.");
+        foreach (var action in roomActions)
+            TrackPlayerAction(room, action);
+        var callbacks = room.DeclaringType.NestedTypes.SelectMany(type => type.Methods);
+        var verb = callbacks.Single(method => method.Name == "<TriggerSelected>b__1");
+        var item = callbacks.Single(method => method.Name == "<TriggerSelected>b__2");
+        TrackPlayerAction(verb, verb.Body.Instructions.Single(i => Calls(i, "SetTag", "Trigger") &&
+            !Equals(i.Previous.Operand, "unhighlight")));
+        TrackPlayerAction(item, item.Body.Instructions.Single(i => Calls(i, "SetTag", "Trigger")));
 
         var set = Iterator("SceneManager", "LoadSetRoutine");
         var finished = set.Body.Instructions.First(i => i.OpCode == OpCodes.Ldfld &&
@@ -139,6 +142,24 @@ internal sealed class GameplayPatch
         var location = set.DeclaringType.Fields.Single(f => f.Name == "set");
         Before(set, finished, true, Instruction.Create(OpCodes.Ldarg_0), Instruction.Create(OpCodes.Ldfld, location),
             Instruction.Create(OpCodes.Call, Hook("GameplayExplore", "CompleteSet")));
+    }
+
+    private void TrackPlayerAction(MethodDefinition method, Instruction trigger)
+    {
+        var target = new VariableDefinition(game.GetType("SetTag"));
+        var action = new VariableDefinition(game.TypeSystem.String);
+        var key = new VariableDefinition(game.TypeSystem.String);
+        method.Body.Variables.Add(target);
+        method.Body.Variables.Add(action);
+        method.Body.Variables.Add(key);
+        Before(method, trigger, true,
+            Instruction.Create(OpCodes.Stloc, action), Instruction.Create(OpCodes.Stloc, target),
+            Instruction.Create(OpCodes.Ldloc, target), Instruction.Create(OpCodes.Ldloc, action),
+            Instruction.Create(OpCodes.Call, Hook("GameplayProgress", "BeginAction")), Instruction.Create(OpCodes.Stloc, key),
+            Instruction.Create(OpCodes.Ldloc, target), Instruction.Create(OpCodes.Ldloc, action));
+        Before(method, trigger.Next, false,
+            Instruction.Create(OpCodes.Ldloc, key), Instruction.Create(OpCodes.Ldloc, action),
+            Instruction.Create(OpCodes.Call, Hook("GameplayProgress", "EndAction")));
     }
 
     private void Click(string type, string name)

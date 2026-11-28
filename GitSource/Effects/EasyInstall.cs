@@ -123,8 +123,7 @@ internal sealed class SetupAssets(ZipArchive package, string effects, bool local
     }
 }
 
-internal sealed record EasyInstallRequest(string[] Libraries, string[] Movies, bool OptionsPending = true, bool AllowLimited = false,
-    bool Offline = false, bool FreshDefaults = false)
+internal sealed record EasyInstallRequest(string[] Libraries, string[] Movies, bool AllowLimited = false, bool Offline = false)
 {
     internal static EasyInstallRequest Read(string effects)
     {
@@ -158,25 +157,43 @@ internal static class GameplayInstallSettings
         ("Exploration", 14, "Preview hotspot actions as icons"), ("Exploration", 15, "Mark visited locations"),
         ("Exploration", 17, "Track completed actions and choices"), ("Exploration", 19, "Remember the last focused item"),
         ("Puzzle assists", 4, "Retry the Chapter 2 taxi"), ("Puzzle assists", 7, "Label maintenance tunnel exits"),
-        ("Puzzle assists", 13, "Label glyph symbols and positions"), ("PC startup", 18, "Reopen on the last-used monitor"),
-        ("PC startup", 20, "Choose the starting window state")
+        ("Puzzle assists", 13, "Label glyph symbols and positions"), ("Game startup", 18, "Reopen on the last-used monitor"),
+        ("Game startup", 20, "Choose the starting window state")
     ];
 
-    private static string PathFor(string effects) => Path.Combine(effects, "GameplaySettings.txt");
-    internal static uint Read(string effects, bool newInstall)
+    internal static string PathFor(string effects) => Path.Combine(effects, "GameplaySettings.txt");
+    private static string ReviewPath(string effects) => Path.Combine(effects, "GameplayOptionsReviewed.txt");
+
+    internal static bool WasReviewed(string effects)
+    {
+        string path = ReviewPath(effects);
+        Files.CheckNoLinks(path);
+        return File.Exists(path) && File.ReadAllText(path).Trim() == "1";
+    }
+
+    internal static uint Read(string effects)
     {
         string path = PathFor(effects);
         Files.CheckNoLinks(path);
-        if (File.Exists(path))
-            return uint.TryParse(File.ReadAllText(path), NumberStyles.Integer, CultureInfo.InvariantCulture, out uint flags)
-                ? flags : 0;
-        return newInstall ? Options.Where(option => option.Bit != 20 && option.Bit != 22)
-            .Aggregate(0u, (flags, option) => flags | (1u << option.Bit)) : 0;
+        return GameplayDefaults.Read(path);
+    }
+
+    internal static void Ensure(string effects)
+    {
+        string path = PathFor(effects);
+        Files.CheckNoLinks(path);
+        if (!GameplayDefaults.TryRead(path, out uint flags))
+            InstallFiles.WriteText(path, flags.ToString(CultureInfo.InvariantCulture));
     }
 
     internal static bool On(uint flags, int bit) => ((flags & (1u << bit)) != 0) != (bit == 22);
     internal static uint Set(uint flags, int bit, bool enabled) =>
         (enabled != (bit == 22)) ? flags | (1u << bit) : flags & ~(1u << bit);
-    internal static void Save(string effects, uint flags) =>
+    internal static void SaveReviewed(string effects, uint flags)
+    {
+        Files.CheckNoLinks(PathFor(effects));
+        Files.CheckNoLinks(ReviewPath(effects));
         InstallFiles.WriteText(PathFor(effects), flags.ToString(CultureInfo.InvariantCulture));
+        InstallFiles.WriteText(ReviewPath(effects), "1");
+    }
 }

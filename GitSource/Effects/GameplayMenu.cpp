@@ -17,6 +17,7 @@ namespace
     constexpr uint32_t rememberMonitor = 1u << 18;
     constexpr uint32_t startWindowState = 1u << 20;
     constexpr uint32_t startMaximized = 1u << 21;
+    constexpr uint32_t defaultGameplay = 0x000BFFF7u;
 
     std::filesystem::path EnvPath(const wchar_t *key)
     {
@@ -45,14 +46,15 @@ namespace
         const std::filesystem::path settings = EnvPath(L"ROM_GAMEPLAY_SETTINGS");
         const std::filesystem::path window = EnvPath(L"ROM_GAMEPLAY_WINDOW");
         const std::filesystem::path history = EnvPath(L"ROM_GAMEPLAY_HISTORY");
-        std::atomic<uint32_t> flags{0};
+        std::atomic<uint32_t> flags{defaultGameplay};
         bool saveFailed = false;
 
         Settings()
         {
             uint32_t stored = 0;
             std::ifstream file(settings);
-            if (file >> stored)
+            const auto first = (file >> std::ws).peek();
+            if (first >= '0' && first <= '9' && file >> stored && (file >> std::ws).eof())
                 flags = stored & ((1u << 23) - 1);
         }
 
@@ -160,7 +162,7 @@ void RenderGameplay()
         Option(7, "Label visible maintenance tunnel exits");
         Option(13, "Label glyph symbols and positions");
     }
-    if (ImGui::CollapsingHeader("PC startup"))
+    if (ImGui::CollapsingHeader("Game startup"))
     {
         Option(18, "Reopen on the last-used monitor");
         Option(20, "Choose the starting window state");

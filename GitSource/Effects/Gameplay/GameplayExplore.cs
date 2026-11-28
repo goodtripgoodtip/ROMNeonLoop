@@ -56,11 +56,11 @@ public static class GameplayExplore
         {
             if (string.IsNullOrEmpty(verb))
                 continue;
-            if (scripts.Contains(verb))
+            if (verb != "item" && scripts.Contains(verb))
                 actions.Add(verb);
             else if (verb == "item")
                 foreach (string key in scripts.Keys)
-                    if (HasInventoryAction(key))
+                    if (ItemActionAvailable(key))
                     {
                         actions.Add(verb);
                         break;
@@ -68,7 +68,12 @@ public static class GameplayExplore
         }
     }
 
-    internal static bool HasInventoryAction(string action)
+    internal static bool ItemActionAvailable(string action)
+    {
+        return action == "item" || HasInventoryAction(action);
+    }
+
+    private static bool HasInventoryAction(string action)
     {
         return Equals(GameAccess.Call(GameAccess.Type("InventoryMenu"), "HasInventoryForAction", action), true);
     }
