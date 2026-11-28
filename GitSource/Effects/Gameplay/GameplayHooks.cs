@@ -20,8 +20,15 @@ public static class GameplayHooks
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate uint FlagReader();
     private static FlagReader readFlags;
-    private static uint flags;
+    private static uint flags = InitialFlags();
     private static float retryFlagsAt;
+
+    private static uint InitialFlags()
+    {
+        try { return GameplayDefaults.Read(Environment.GetEnvironmentVariable("ROM_GAMEPLAY_SETTINGS")); }
+        catch (IOException) { return GameplayDefaults.Enabled; }
+        catch (UnauthorizedAccessException) { return GameplayDefaults.Enabled; }
+    }
     private static GameplayHud hud;
     private static object dialogue;
     private static object writer;

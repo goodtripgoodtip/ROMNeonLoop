@@ -10,6 +10,8 @@ using UnityEngine;
 
 public static class GameplayProgress
 {
+    internal enum ActionStatus { Untried, Tried, Covered }
+
     private static readonly HashSet<string> Records = new HashSet<string>(StringComparer.Ordinal);
     private static readonly Dictionary<string, HashSet<string>> Offered = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
     private static readonly byte[] Separator = { 0 };
@@ -32,32 +34,18 @@ public static class GameplayProgress
         try
         {
             var tag = source as Component;
-            if (!Enabled || tag == null || !GameAccess.Playing(GameAccess.Scene) || !Selected(tag))
+            if (!Enabled || tag == null || !GameAccess.Playing(GameAccess.Scene))
                 return null;
             string key = ActionKey(tag, action);
             if (key != null)
             {
+                Records.Add("tried:" + key);
                 conversation = key;
                 dialogueStarted = false;
             }
             return key;
         }
         catch (Exception error) { GameplayHud.Report(error); return null; }
-    }
-
-    private static bool Selected(Component tag)
-    {
-        object scene = GameAccess.Scene;
-        object menu = GameAccess.Get<object>(scene, "setMenu");
-        object active = GameAccess.ActiveMenu;
-        if (ReferenceEquals(menu, active))
-            return GameplayExplore.Tag(GameplayExplore.ItemObject(GameAccess.Get<object>(menu, "selected"))) == tag;
-        object interactions = GameAccess.Get<object>(menu, "interactionMenu");
-        if (ReferenceEquals(active, interactions))
-            return GameAccess.Get<Component>(interactions, "targetObject") == tag;
-        object inventory = GameAccess.Get<object>(scene, "inventoryMenu");
-        return ReferenceEquals(active, inventory) &&
-            GameAccess.Get<Component>(interactions, "targetObject") == tag;
     }
 
     public static void EndAction(string key, string action)
@@ -126,26 +114,37 @@ public static class GameplayProgress
         return Digest(location, GameplayExplore.Identity(tag), chapter, action, effective, Digest(script));
     }
 
-    internal static bool ActionComplete(Component tag, string action)
+    internal static ActionStatus Status(Component tag, string action)
     {
         try
         {
             if (action != "item")
-                return ActionComplete(ActionKey(tag, action));
+                return Status(ActionKey(tag, action));
             var scripts = GameAccess.Get<IDictionary>(tag, "ActionList");
             if (scripts == null)
-                return false;
+                return ActionStatus.Untried;
             bool found = false;
+            bool tried = false;
+            bool covered = true;
             foreach (string key in scripts.Keys)
-                if (key == "item" || GameplayExplore.HasInventoryAction(key))
+                if (GameplayExplore.ItemActionAvailable(key))
                 {
                     found = true;
-                    if (!ActionComplete(ActionKey(tag, key)))
-                        return false;
+                    ActionStatus status = Status(ActionKey(tag, key));
+                    tried |= status != ActionStatus.Untried;
+                    covered &= status == ActionStatus.Covered;
                 }
-            return found;
+            return found && covered ? ActionStatus.Covered : tried ? ActionStatus.Tried : ActionStatus.Untried;
         }
-        catch (Exception error) { GameplayHud.Report(error); return false; }
+        catch (Exception error) { GameplayHud.Report(error); return ActionStatus.Untried; }
+    }
+
+    private static ActionStatus Status(string key)
+    {
+        if (ActionComplete(key))
+            return ActionStatus.Covered;
+        return key != null && (Records.Contains("tried:" + key) || Records.Contains("done:" + key))
+            ? ActionStatus.Tried : ActionStatus.Untried;
     }
 
     private static bool ActionComplete(string key)

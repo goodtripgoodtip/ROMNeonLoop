@@ -214,7 +214,7 @@ public sealed class GameplayHud : MonoBehaviour
     private bool AllActionsDone(Component tag)
     {
         foreach (string action in actions)
-            if (!GameplayProgress.ActionComplete(tag, action))
+            if (GameplayProgress.Status(tag, action) != GameplayProgress.ActionStatus.Covered)
                 return false;
         return true;
     }
@@ -222,8 +222,9 @@ public sealed class GameplayHud : MonoBehaviour
     private void DrawActionIcons(Component tag, Vector3 point, Rect view, float size)
     {
         float tile = size * 1.4f;
-        float step = tile + 4;
-        float width = step * actions.Count - 4;
+        float gap = Mathf.Max(4f, Mathf.Round(tile * .17f));
+        float step = tile + gap;
+        float width = step * actions.Count - gap;
         if (width > view.width - 8)
             return;
         float x = Mathf.Clamp(point.x - width * .5f, view.xMin + 4, view.xMax - width - 4);
@@ -231,14 +232,14 @@ public sealed class GameplayHud : MonoBehaviour
         float y = centerY - tile - size;
         if (y < view.yMin + 4)
             y = centerY + size;
-        if (y + tile > view.yMax - 4)
+        if (y + tile * 1.24f > view.yMax - 4)
             return;
         bool showCompletion = GameplayHooks.Enabled(GameplayHooks.Option.Examined);
         for (int i = 0; i < actions.Count; ++i)
         {
             string action = actions[i];
             GameplayHudArt.Action(action, new Rect(x + i * step, y, tile, tile),
-                showCompletion && GameplayProgress.ActionComplete(tag, action));
+                showCompletion ? GameplayProgress.Status(tag, action) : GameplayProgress.ActionStatus.Untried);
         }
     }
 
