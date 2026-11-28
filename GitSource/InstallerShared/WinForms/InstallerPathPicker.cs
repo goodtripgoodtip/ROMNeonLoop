@@ -2,110 +2,107 @@ namespace GameInstaller.WinForms;
 
 internal sealed class InstallerPathPicker : UserControl
 {
-    private readonly TextBox path = new() { Dock = DockStyle.Top, AccessibleName = "File or folder path" };
-    private readonly ListBox entries = new() { Dock = DockStyle.Fill, IntegralHeight = false, Height = 190, AccessibleName = "Files and folders" };
-    private readonly Label browseLocation = new() { AutoSize = true, UseMnemonic = false };
-    private readonly Label status = new() { AutoSize = true };
+    private readonly TextBox path = new() { Dock = DockStyle.Fill, AccessibleName = "File or folder path" };
+    private readonly Label status = new() { AutoSize = true, UseMnemonic = false };
     private readonly bool folders;
     private readonly bool allowNew;
-    private readonly string pattern;
     private readonly Action<string> choose;
-    private string? directory;
 
     internal InstallerPathPicker(string? initial, bool folders, Action<string> choose, Action back,
         string pattern = "*", bool allowNew = false)
     {
         this.folders = folders;
         this.allowNew = allowNew;
-        this.pattern = pattern;
         this.choose = choose;
         Dock = DockStyle.Top;
         AutoSize = true;
-        var layout = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 1 };
+        AutoSizeMode = AutoSizeMode.GrowAndShrink;
+        var layout = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, Margin = Padding.Empty };
         layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        layout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         Controls.Add(layout);
         InstallerTheme.Apply(path);
-        entries.BackColor = path.BackColor;
-        entries.ForeColor = path.ForeColor;
-        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        var listHeight = new RowStyle(SizeType.Absolute, 210);
-        layout.RowStyles.Add(listHeight);
-        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        layout.Controls.Add(path);
-        layout.Controls.Add(browseLocation);
-        layout.Controls.Add(entries);
-        layout.Controls.Add(status);
-        var buttons = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Top };
-        var up = new Button { Text = "Up one folder", AutoSize = true };
-        var use = new Button { Text = folders ? "Use this folder" : "Use this file", AutoSize = true };
-        var cancel = new Button { Text = "Back", AutoSize = true };
-        InstallerTheme.Secondary(up);
-        InstallerTheme.Secondary(cancel);
+        path.Text = initial ?? "";
+        var browse = MakeButton("Browse…");
+        var use = MakeButton(folders ? "Use this folder" : "Use this file");
+        var goBack = MakeButton("Back");
         InstallerTheme.Primary(use);
-        buttons.Controls.AddRange([up, use, cancel]);
-        layout.Controls.Add(buttons);
-        up.Click += (_, _) => Browse(directory == null ? null : Directory.GetParent(directory)?.FullName);
-        cancel.Click += (_, _) => back();
-        use.Click += (_, _) => Choose();
-        entries.SelectedIndexChanged += (_, _) =>
+        var label = new Label { Text = folders ? "Folder path" : "File path", AutoSize = true };
+        layout.Controls.Add(label, 0, 0);
+        layout.SetColumnSpan(label, 2);
+        layout.Controls.Add(path, 0, 1);
+        layout.Controls.Add(browse, 1, 1);
+        layout.Controls.Add(status, 0, 2);
+        layout.SetColumnSpan(status, 2);
+        var buttons = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Top };
+        buttons.Controls.AddRange([goBack, use]);
+        layout.Controls.Add(buttons, 0, 3);
+        layout.SetColumnSpan(buttons, 2);
+        browse.Click += (_, _) =>
         {
-            if (entries.SelectedItem is Entry entry)
-                path.Text = entry.Path;
-        };
-        entries.DoubleClick += (_, _) =>
-        {
-            if (entries.SelectedItem is Entry entry && entry.Folder)
-                Browse(entry.Path);
-            else
-                Choose();
-        };
-        if (Parent != null)
-            listHeight.Height = Math.Clamp(Parent.ClientSize.Height / 2, 145, 430);
-        ParentChanged += (_, _) =>
-        {
-            if (Parent != null)
-                listHeight.Height = Math.Clamp(Parent.ClientSize.Height / 2, 145, 430);
-        };
-        path.KeyDown += (_, args) =>
-        {
-            if (args.KeyCode == Keys.Enter)
+            try
             {
-                args.SuppressKeyPress = true;
-                Choose();
+                string? selection = Browse(FindForm(), path.Text, folders, allowNew, pattern);
+                if (selection == null)
+                    return;
+                path.Text = selection;
+                status.Text = "";
+                path.Focus();
+            }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException or
+                System.ComponentModel.Win32Exception or System.Runtime.InteropServices.COMException)
+            {
+                status.Text = "Windows couldn’t open the picker. Enter or paste the full path instead.";
             }
         };
-        string? start = initial;
-        if (!string.IsNullOrWhiteSpace(start) && Path.IsPathFullyQualified(start))
-            while (start != null && !Directory.Exists(start))
-                start = Path.GetDirectoryName(start);
-        Browse(Directory.Exists(start) ? start : Environment.GetFolderPath(Environment.SpecialFolder.UserProfile));
-        if (allowNew && !string.IsNullOrWhiteSpace(initial))
-            path.Text = initial;
+        goBack.Click += (_, _) => back();
+        use.Click += (_, _) => Choose();
+        path.KeyDown += (_, args) =>
+        {
+            if (args.KeyCode is not (Keys.Enter or Keys.Escape))
+                return;
+            args.SuppressKeyPress = true;
+            if (args.KeyCode == Keys.Enter)
+                Choose();
+            else
+                back();
+        };
+        ClientSizeChanged += (_, _) => status.MaximumSize = new Size(Math.Max(180, ClientSize.Width - 12), 0);
     }
 
-    private void Browse(string? candidate)
+    internal static string? Browse(IWin32Window? owner, string? initial, bool folders, bool allowNew = false,
+        string pattern = "*")
     {
-        try
+        string? directory = FindStart(initial);
+        if (folders)
         {
-            Entry[] shown = string.IsNullOrEmpty(candidate) ?
-                DriveInfo.GetDrives().Where(drive => drive.IsReady).Select(drive => new Entry(drive.Name, drive.Name, true)).ToArray() :
-                Directory.EnumerateDirectories(candidate).Order(StringComparer.OrdinalIgnoreCase)
-                    .Select(folder => new Entry(Path.GetFileName(folder), folder, true))
-                    .Concat(folders ? [] : Directory.EnumerateFiles(candidate, pattern).Order(StringComparer.OrdinalIgnoreCase)
-                        .Select(file => new Entry(Path.GetFileName(file), file, false))).ToArray();
-            directory = candidate;
-            browseLocation.Text = candidate == null ? "Available drives" : "Browsing " + candidate;
-            path.Text = candidate ?? "";
-            entries.Items.Clear();
-            entries.Items.AddRange(shown);
-            status.Text = "";
+            using var dialog = new FolderBrowserDialog
+            {
+                AutoUpgradeEnabled = true, Description = "Choose a folder", UseDescriptionForTitle = true,
+                ShowNewFolderButton = allowNew, InitialDirectory = directory ?? "",
+                SelectedPath = Directory.Exists(initial) ? initial! : ""
+            };
+            return dialog.ShowDialog(owner) == DialogResult.OK ? dialog.SelectedPath : null;
         }
-        catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException)
+
+        using var files = new OpenFileDialog
         {
-            status.Text = "Windows couldn’t read this folder. Enter another path.";
-        }
+            AutoUpgradeEnabled = true, Title = "Choose a file", InitialDirectory = directory ?? "",
+            FileName = File.Exists(initial) ? Path.GetFileName(initial) : "",
+            CheckFileExists = true, CheckPathExists = true, RestoreDirectory = true,
+            Filter = pattern == "*" ? "All files|*.*" : $"Matching files ({pattern})|{pattern}|All files|*.*"
+        };
+        return files.ShowDialog(owner) == DialogResult.OK ? files.FileName : null;
+    }
+
+    private static string? FindStart(string? initial)
+    {
+        string? candidate = initial?.Trim().Trim('"');
+        if (string.IsNullOrEmpty(candidate) || !Path.IsPathFullyQualified(candidate))
+            return null;
+        while (candidate != null && !Directory.Exists(candidate))
+            candidate = Path.GetDirectoryName(candidate);
+        return candidate;
     }
 
     private void Choose()
@@ -114,15 +111,10 @@ internal sealed class InstallerPathPicker : UserControl
         {
             string value = path.Text.Trim().Trim('"');
             if (!Path.IsPathFullyQualified(value))
-                throw new IOException("Enter the full path.");
+                throw new IOException("Enter or browse for a full path.");
             value = Path.GetFullPath(value);
-            if (!folders && Directory.Exists(value))
-            {
-                Browse(value);
-                return;
-            }
             if (folders ? !allowNew && !Directory.Exists(value) : !File.Exists(value))
-                throw new IOException("Choose an item that exists.");
+                throw new IOException(folders ? "Choose an existing folder." : "Choose an existing file.");
             choose(value);
         }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException)
@@ -131,8 +123,10 @@ internal sealed class InstallerPathPicker : UserControl
         }
     }
 
-    private sealed record Entry(string Name, string Path, bool Folder)
+    private static Button MakeButton(string text)
     {
-        public override string ToString() => Folder ? Name + "  ›" : Name;
+        var button = new Button { Text = text, AutoSize = true, MinimumSize = new Size(92, 40) };
+        InstallerTheme.Secondary(button);
+        return button;
     }
 }
