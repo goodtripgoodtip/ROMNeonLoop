@@ -25,6 +25,7 @@ public sealed record GameSource(string Executable)
     public string? DisplayName { get; init; }
     public uint? SteamAppId { get; init; }
     public string? SteamDirectory { get; init; }
+    public string? SteamInstallDirectoryName { get; init; }
     public string CompatibilityNotice { get; init; } = "Testing was limited to the developer’s Windows 11 PC and the supported game release.";
     public IReadOnlyList<string> RequiredFiles { get; init; } = [];
     public IReadOnlyList<string> SupportedBuildIds { get; init; } = [];

@@ -57,7 +57,8 @@ internal static class InstallFiles
         }
     }
 
-    internal static IEnumerable<(string Path, bool Directory)> Tree(string root, CancellationToken token, bool preserveLinks = false)
+    internal static IEnumerable<(string Path, bool Directory)> Tree(string root, CancellationToken token, bool preserveLinks = false,
+        string? exclude = null)
     {
         CheckNoLinks(root);
         var folders = new Stack<string>();
@@ -67,6 +68,8 @@ internal static class InstallFiles
             foreach (string entry in Directory.EnumerateFileSystemEntries(folder))
             {
                 token.ThrowIfCancellationRequested();
+                if (string.Equals(entry, exclude, StringComparison.OrdinalIgnoreCase))
+                    continue;
                 FileAttributes attributes = File.GetAttributes(entry);
                 if ((attributes & FileAttributes.ReparsePoint) != 0)
                 {
