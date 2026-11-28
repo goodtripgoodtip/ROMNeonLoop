@@ -225,11 +225,12 @@ internal sealed class InstallSession
         !SetupAssets.Embedded(Package, asset) && !SetupAssets.HasCandidate(Effects, asset)).ToArray();
 
     internal const string CutscenePurpose = "Soundtrack packs replace music during gameplay. Optional conversion also replaces music in cutscenes while keeping dialogue and sound effects.";
-    internal const string CpuDecision = "Convert cutscenes on the CPU?";
-    internal const string CpuWarning = "CPU conversion can take several hours and may slow the game. Once it starts, you can play while setup keeps working or skip unfinished conversion at any time. Your soundtrack plays during gameplay. Cutscenes use their original audio until that soundtrack’s conversion is ready.";
+    internal const string ProcessingChoices = "A compatible NVIDIA GPU can separate audio much faster using CUDA. Without CUDA, setup can use the CPU, which may take several hours. Both paths render the finished clips separately.";
+    internal const string CpuDecision = "Use CPU processing instead?";
+    internal const string CpuWarning = "CUDA acceleration is off, unavailable, or could not finish. If you continue, your CPU separates the cutscene audio. That can take several hours and may slow the game. You can play while setup works or skip conversion. Your chosen soundtrack works during gameplay, and unfinished cutscenes keep their original audio.";
     internal string ProcessorSummary => AllowHardwareCheck
-        ? "Setup checks for a compatible NVIDIA GPU. If NVIDIA is unavailable, declined or fails, conversion uses the CPU. CPU conversion can take several hours."
-        : "Conversion uses your CPU and can take several hours, especially for multiple soundtracks.";
+        ? "Setup checks for a compatible NVIDIA GPU and asks before downloading CUDA tools. CUDA can speed up audio separation. If CUDA is unavailable, declined, or fails, setup asks whether to use the slower CPU path."
+        : "The NVIDIA check is off. If you approve conversion, your CPU will separate the audio. This can take several hours, especially for multiple soundtracks.";
 
     internal string DownloadPurpose(string filename)
     {
@@ -254,6 +255,7 @@ internal sealed class InstallSession
     {
         results.Clear();
         EffectsLauncher.CheckNoGame();
+        GameplayInstallSettings.Ensure(Effects);
         var reviewed = ReviewedAssets();
         var approved = ApprovedDownloads.ToList();
         if (Request != null)
@@ -391,9 +393,9 @@ internal sealed class InstallSession
         }
         InstallAsset[] needed = DownloadsNeeded(gpu);
         long download = needed.Sum(asset => asset.bytes);
-        string prompt = download == 0 ? "Setup can reuse the local NVIDIA audio tools." :
-            $"Download {InstallFiles.Size(download)} for the NVIDIA edition of PyTorch, which separates cutscene audio on your GPU.";
-        if (!approve("Use NVIDIA acceleration?", prompt + " You can also choose CPU or skip cutscene conversion.", token))
+        string prompt = download == 0 ? "Setup can reuse the local NVIDIA CUDA tools." :
+            $"Download {InstallFiles.Size(download)} for the NVIDIA CUDA edition of PyTorch.";
+        if (!approve("Use NVIDIA CUDA acceleration?", prompt + " CUDA can separate audio much faster on your GPU. Rendering the finished clips is a separate stage. You can also use the CPU or skip conversion.", token))
             return InstallHardware.Cpu;
         approved.AddRange(needed);
         return backend;
